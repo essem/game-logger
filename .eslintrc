@@ -1,0 +1,18 @@
+{
+  "parser": "babel-eslint",
+  "extends": [
+    "airbnb",
+  ],
+  "env": {
+    "browser": true,
+  },
+  "rules": {
+    "strict": "off",
+    "react/prefer-stateless-function": "off", // does not support hmr
+    "import/no-extraneous-dependencies": "off",
+    "require-yield": "off",
+  },
+  "globals": {
+    "API_HOST": false,
+  }
+}

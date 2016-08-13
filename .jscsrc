@@ -1,0 +1,8 @@
+{
+  "preset": "airbnb",
+  "esnext": true,
+  "excludeFiles": [
+    "dist",
+    "coverage"
+  ]
+}
