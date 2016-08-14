@@ -67,6 +67,7 @@ class Event extends React.Component {
             </Col>
           </Row>
         </Grid>
+        <br />
         {this.props.children}
       </div>
     );

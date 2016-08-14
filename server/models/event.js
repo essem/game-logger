@@ -1,16 +1,16 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-  const Event = sequelize.define('Event', {
+  const event = sequelize.define('event', {
     name: DataTypes.STRING,
   }, {
     classMethods: {
-      // associate: models => {
-      //   Event.hasMany(models.Player);
-      //   Event.hasMany(models.Game);
-      // },
+      associate: models => {
+        event.hasMany(models.player);
+        event.hasMany(models.game);
+      },
     },
   });
 
-  return Event;
+  return event;
 };
