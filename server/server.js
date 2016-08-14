@@ -6,9 +6,10 @@ const send = require('koa-send');
 const morgan = require('koa-morgan');
 const config = require('config');
 const logger = require('./logger');
-const todos = require('./todos');
+const models = require('./models');
+const events = require('./events');
 
-function createServer(hostname, port) {
+function createKoa(hostname, port) {
   const app = koa();
 
   const stream = {
@@ -22,7 +23,7 @@ function createServer(hostname, port) {
     app.use(cors());
   }
 
-  todos(app);
+  events(app);
 
   if (config.get('serveStatic')) {
     app.use(require('koa-static')('dist')); // eslint-disable-line global-require
@@ -38,6 +39,13 @@ function createServer(hostname, port) {
   logger.info(`server is started on ${hostname}:${port} in ${envStr} mode`);
 
   return httpServer;
+}
+
+function createServer(hostname, port) {
+  return models.sequelize.sync()
+  .then(() => {
+    createKoa(hostname, port);
+  });
 }
 
 module.exports = createServer;

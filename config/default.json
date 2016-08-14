@@ -3,6 +3,12 @@
   "port": 5000,
   "serveStatic": false,
   "cors": true,
+  "database": {
+    "host": "localhost",
+    "db": "gameLogger",
+    "username": "gameLogger",
+    "password": "gameLogger"
+  },
   "log": {
     "console": {
       "level": "debug",

@@ -9,6 +9,7 @@
   "rules": {
     "strict": "off",
     "react/prefer-stateless-function": "off", // does not support hmr
+    "react/no-find-dom-node": "off",
     "import/no-extraneous-dependencies": "off",
     "require-yield": "off",
   },

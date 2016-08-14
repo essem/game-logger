@@ -1,44 +1,14 @@
-const todo = (state, action) => {
+const events = (state = [], action) => {
   switch (action.type) {
-    case 'ADD_TODO':
-      return {
-        id: action.id,
-        text: action.text,
-        completed: action.completed,
-      };
+    case 'INIT_EVENTS':
+      return [...action.events];
 
-    case 'TOGGLE_TODO':
-      if (state.id !== action.id) {
-        return state;
-      }
-
-      return {
-        ...state,
-        completed: !state.completed,
-      };
+    case 'CREATE_EVENT':
+      return [...state, action.event];
 
     default:
       return state;
   }
 };
 
-const todos = (state = [], action) => {
-  switch (action.type) {
-    case 'INIT_TODOS':
-      return [...action.todos];
-
-    case 'ADD_TODO':
-      return [
-        ...state,
-        todo(undefined, action),
-      ];
-
-    case 'TOGGLE_TODO':
-      return state.map(t => todo(t, action));
-
-    default:
-      return state;
-  }
-};
-
-export default todos;
+export default events;
