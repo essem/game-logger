@@ -17,6 +17,13 @@ function init(app) {
     const newEvent = yield models.Event.create({ name: body.name });
     this.body = JSON.stringify(newEvent);
   }));
+
+  app.use(route.get('/api/event/:id', function* showEvent(id) {
+    const event = yield models.Event.findOne({
+      where: { id },
+    });
+    this.body = JSON.stringify(event);
+  }));
 }
 
 module.exports = init;

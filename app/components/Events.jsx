@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button } from 'react-bootstrap';
 import moment from 'moment';
+import { browserHistory, Link } from 'react-router';
 import NewEvent from './NewEvent.jsx';
 
 class Events extends React.Component {
@@ -47,6 +48,7 @@ class Events extends React.Component {
         type: 'CREATE_EVENT',
         event: res,
       });
+      browserHistory.push(`/events/${res.id}/players`);
     })
     .catch(() => {});
   }
@@ -79,6 +81,10 @@ class Events extends React.Component {
         43 Games at {moment(event.createdAt).format('YYYY-MM-DD HH:mm:ss')}
         <br />
         Winner: essem, Loser: messe
+        <br />
+        <Link to={`/events/${event.id}/summary`} className="btn btn-primary">
+          View
+        </Link>
       </Panel>
     );
   }
