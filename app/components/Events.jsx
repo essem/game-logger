@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button } from 'react-bootstrap';
-import moment from 'moment';
 import { browserHistory, Link } from 'react-router';
 import NewEvent from './NewEvent.jsx';
 
@@ -70,6 +69,19 @@ class Events extends React.Component {
     );
   }
 
+  renderSummary(event) {
+    if (!event.finished) {
+      return <span>Event is in progress...<br /></span>;
+    }
+
+    return event.summary.split('\n').map(item => (
+      <span>
+        {item}
+        <br />
+      </span>
+    ));
+  }
+
   renderEvent(event) {
     return (
       <Panel
@@ -78,11 +90,9 @@ class Events extends React.Component {
         collapsible
         defaultExpanded={false}
       >
-        43 Games at {moment(event.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+        {this.renderSummary(event)}
         <br />
-        Winner: essem, Loser: messe
-        <br />
-        <Link to={`/events/${event.id}/summary`} className="btn btn-primary">
+        <Link to={`/events/${event.id}/summary`} className="btn btn-default">
           View
         </Link>
       </Panel>

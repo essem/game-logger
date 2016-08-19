@@ -35,7 +35,42 @@ function init(app) {
     });
     if (body.finished) {
       event.finished = true; // un-finish is not allowed
+
+      const player = yield models.player.findOne({
+        attributes: [[models.sequelize.fn('COUNT', models.sequelize.col('id')), 'count']],
+        where: { eventId: id },
+      });
+      const playerCount = player.get('count');
+
+      const game = yield models.game.findOne({
+        attributes: [[models.sequelize.fn('COUNT', models.sequelize.col('id')), 'count']],
+        where: { eventId: id },
+      });
+      const gameCount = game.get('count');
+
+      const mostWin = yield models.game.findOne({
+        attributes: [
+          'winnerId',
+          [
+            models.sequelize.fn('COUNT', models.sequelize.col('id')),
+            'count',
+          ],
+        ],
+        group: ['winnerId'],
+        where: { eventId: id },
+        order: 'count DESC',
+        limit: 1,
+      });
+      const mostWinCount = mostWin.get('count');
+
+      const mostWinner = yield models.player.findOne({
+        where: { id: mostWin.winnerId },
+      });
+
+      event.summary = `${playerCount} players played ${gameCount} games.\n` +
+                      `Most wins: ${mostWinCount} wins by ${mostWinner.name}`;
     }
+
     yield event.save();
     this.body = JSON.stringify({ id });
   }));

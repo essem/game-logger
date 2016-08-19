@@ -106,6 +106,19 @@ class Players extends React.Component {
       <Grid>
         {this.renderNewPlayer()}
         <Row>
+          <Col
+            xs={12}
+            style={{
+              textAlign: 'center',
+              marginBottom: '10px',
+              fontSize: '12px',
+              fontStyle: 'italic',
+            }}
+          >
+          Total {players.length} players
+          </Col>
+        </Row>
+        <Row>
           <Col xs={12}>
           {players.map(player => this.renderPlayer(player))}
           </Col>
@@ -114,6 +127,7 @@ class Players extends React.Component {
     );
   }
 }
+
 const mapStateToProps = state => ({
   event: state.event,
   players: state.event.players,

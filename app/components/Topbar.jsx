@@ -20,7 +20,6 @@ export default class Home extends React.Component {
           <Navbar.Collapse>
             <Nav>
               <li><Link to="/events">Events</Link></li>
-              <li><Link to="/about">About</Link></li>
             </Nav>
           </Navbar.Collapse>
         </Navbar>

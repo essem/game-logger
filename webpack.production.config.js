@@ -25,7 +25,7 @@ module.exports = {
       },
     }),
     new HtmlwebpackPlugin({
-      title: 'node explorer',
+      title: 'Game logger',
       favicon: './app/public/favicon.ico',
       template: './app/public/index.ejs',
     }),

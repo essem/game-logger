@@ -14,7 +14,6 @@ import Event from './components/Event.jsx';
 import Players from './components/Players.jsx';
 import Games from './components/Games.jsx';
 import Summary from './components/Summary.jsx';
-import About from './components/About.jsx';
 
 const app = document.createElement('div');
 document.body.appendChild(app);
@@ -44,7 +43,6 @@ ReactDOM.render((
             <Route path="summary" component={Summary} />
           </Route>
         </Route>
-        <Route path="about" component={About} />
       </Route>
     </Router>
   </Provider>

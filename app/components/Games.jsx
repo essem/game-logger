@@ -158,6 +158,19 @@ class Games extends React.Component {
       <Grid>
         {this.renderNewGame()}
         <Row>
+          <Col
+            xs={12}
+            style={{
+              textAlign: 'center',
+              marginBottom: '10px',
+              fontSize: '12px',
+              fontStyle: 'italic',
+            }}
+          >
+          Total {games.length} games
+          </Col>
+        </Row>
+        <Row>
           <Col xs={12}>
           {games.map(game => this.renderGame(game))}
           </Col>
