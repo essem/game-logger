@@ -18,7 +18,7 @@ function init(app) {
     this.body = JSON.stringify(newEvent);
   }));
 
-  app.use(route.get('/api/event/:id', function* showEvent(id) {
+  app.use(route.get('/api/events/:id', function* showEvent(id) {
     const event = yield models.event.findOne({
       where: { id },
     });
@@ -28,14 +28,40 @@ function init(app) {
     this.body = JSON.stringify(event);
   }));
 
+  app.use(route.put('/api/events/:id', function* updateEvent(id) {
+    const body = yield parse.json(this);
+    const event = yield models.event.findOne({
+      where: { id },
+    });
+    if (body.finished) {
+      event.finished = true; // un-finish is not allowed
+    }
+    yield event.save();
+    this.body = JSON.stringify({ id });
+  }));
+
   app.use(route.post('/api/events/:id/players', function* createPlayer(id) {
     const body = yield parse.json(this);
+    const event = yield models.event.findOne({
+      where: { id },
+    });
+    if (event.finished) {
+      this.status = 400;
+      return;
+    }
     const newPlayer = yield models.player.create({ eventId: id, name: body.name });
     this.body = JSON.stringify(newPlayer);
   }));
 
   app.use(route.post('/api/events/:id/games', function* createGame(id) {
     const body = yield parse.json(this);
+    const event = yield models.event.findOne({
+      where: { id },
+    });
+    if (event.finished) {
+      this.status = 400;
+      return;
+    }
     const newGame = yield models.game.create({
       eventId: id,
       winnerId: body.winnerId,
@@ -45,6 +71,13 @@ function init(app) {
   }));
 
   app.use(route.delete('/api/events/:eventId/games/:id', function* createGame(eventId, id) {
+    const event = yield models.event.findOne({
+      where: { eventId },
+    });
+    if (event.finished) {
+      this.status = 400;
+      return;
+    }
     yield models.game.destroy({
       where: { id, eventId },
     });

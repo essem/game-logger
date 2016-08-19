@@ -56,6 +56,27 @@ class Players extends React.Component {
     );
   }
 
+  renderNewPlayer() {
+    if (this.props.event.finished) {
+      return '';
+    }
+
+    return (
+      <Row style={{ marginBottom: '30px' }}>
+        <Col xs={12}>
+          <Button
+            bsStyle="primary"
+            style={{ width: '100%' }}
+            onClick={this.handleNewPlayer}
+          >
+            New Player
+          </Button>
+          {this.renderNewPlayerModal()}
+        </Col>
+      </Row>
+    );
+  }
+
   renderPlayer(player) {
     let win = 0;
     let lose = 0;
@@ -83,19 +104,7 @@ class Players extends React.Component {
 
     return (
       <Grid>
-        <Row>
-          <Col xs={12}>
-            <Button
-              bsStyle="primary"
-              style={{ width: '100%' }}
-              onClick={this.handleNewPlayer}
-            >
-              New Player
-            </Button>
-            {this.renderNewPlayerModal()}
-          </Col>
-        </Row>
-        <br />
+        {this.renderNewPlayer()}
         <Row>
           <Col xs={12}>
           {players.map(player => this.renderPlayer(player))}

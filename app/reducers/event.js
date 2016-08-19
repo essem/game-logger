@@ -26,6 +26,12 @@ const event = (state = initialState, action) => {
         games: state.games.filter(g => g.id !== action.id),
       };
 
+    case 'FINISH_EVENT':
+      return {
+        ...state,
+        finished: true,
+      };
+
     default:
       return state;
   }

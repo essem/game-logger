@@ -69,6 +69,7 @@
     "redux": "^3.5.2",
     "redux-devtools": "^3.3.1",
     "rimraf": "^2.5.4",
+    "sequelize-cli": "^2.4.0",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.1",

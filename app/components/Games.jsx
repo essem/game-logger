@@ -101,16 +101,35 @@ class Games extends React.Component {
     );
   }
 
+  renderNewGame() {
+    if (this.props.event.finished) {
+      return '';
+    }
+
+    return (
+      <Row style={{ marginBottom: '30px' }}>
+        <Col xs={12}>
+          <Button
+            bsStyle="primary"
+            style={{ width: '100%' }}
+            onClick={this.handleNewGame}
+          >
+            New Game
+          </Button>
+          {this.renderNewGameModal()}
+          {this.renderDeleteConfirm()}
+        </Col>
+      </Row>
+    );
+  }
+
   renderGame(game) {
     const winner = this.props.players.find(player => player.id === game.winnerId);
     const loser = this.props.players.find(player => player.id === game.loserId);
 
-    return (
-      <Panel
-        key={game.id}
-        style={{ textAlign: 'center' }}
-      >
-        <Badge>win</Badge> {winner.name} vs {loser.name} <Badge>lose</Badge>
+    let deleteButton = '';
+    if (!this.props.event.finished) {
+      deleteButton = (
         <span
           className="pull-right"
           style={{ color: '#ccc' }}
@@ -118,6 +137,16 @@ class Games extends React.Component {
         >
           <Glyphicon glyph="remove" />
         </span>
+      );
+    }
+
+    return (
+      <Panel
+        key={game.id}
+        style={{ textAlign: 'center' }}
+      >
+        <Badge>win</Badge> {winner.name} vs {loser.name} <Badge>lose</Badge>
+        {deleteButton}
       </Panel>
     );
   }
@@ -127,20 +156,7 @@ class Games extends React.Component {
 
     return (
       <Grid>
-        <Row>
-          <Col xs={12}>
-            <Button
-              bsStyle="primary"
-              style={{ width: '100%' }}
-              onClick={this.handleNewGame}
-            >
-              New Game
-            </Button>
-            {this.renderNewGameModal()}
-            {this.renderDeleteConfirm()}
-          </Col>
-        </Row>
-        <br />
+        {this.renderNewGame()}
         <Row>
           <Col xs={12}>
           {games.map(game => this.renderGame(game))}

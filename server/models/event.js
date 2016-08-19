@@ -3,6 +3,7 @@
 module.exports = (sequelize, DataTypes) => {
   const event = sequelize.define('event', {
     name: DataTypes.STRING,
+    finished: DataTypes.BOOLEAN,
   }, {
     classMethods: {
       associate: models => {

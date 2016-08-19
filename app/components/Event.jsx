@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Grid, Row, Col, Panel, ButtonGroup } from 'react-bootstrap';
+import { Grid, Row, Col, Panel, ButtonGroup, Button } from 'react-bootstrap';
 import { Link } from 'react-router';
+import Confirm from './Confirm.jsx';
 
 class Event extends React.Component {
   static propTypes = {
@@ -11,8 +12,12 @@ class Event extends React.Component {
     params: React.PropTypes.object,
   };
 
+  state = {
+    showFinishConfirm: false,
+  };
+
   componentDidMount() {
-    fetch(`${API_HOST}/api/event/${this.props.params.id}`)
+    fetch(`${API_HOST}/api/events/${this.props.params.id}`)
     .then(res => res.json())
     .then(event => {
       this.props.dispatch({
@@ -23,10 +28,63 @@ class Event extends React.Component {
     .catch(() => {});
   }
 
+  handleConfirmFinish = () => {
+    this.setState({ showFinishConfirm: true });
+  };
+
+  handleFinish = () => {
+    this.setState({ showFinishConfirm: false });
+
+    fetch(`${API_HOST}/api/events/${this.props.event.id}`, {
+      method: 'put',
+      body: JSON.stringify({ finished: true }),
+    })
+    .then(res => res.json())
+    .then(() => {
+      this.props.dispatch({
+        type: 'FINISH_EVENT',
+      });
+    })
+    .catch(() => {});
+  }
+
+  handleCloseFinishConfirm = () => {
+    this.setState({ showFinishConfirm: false });
+  }
+
+  renderFinishConfirm() {
+    if (!this.state.showFinishConfirm) {
+      return '';
+    }
+
+    return (
+      <Confirm
+        message="Finish the event?"
+        okayText="Finish"
+        okayStyle="primary"
+        onOkay={this.handleFinish}
+        onCancel={this.handleCloseFinishConfirm}
+      />
+    );
+  }
+
   render() {
     const event = this.props.event;
     if (!event) {
       return <div />;
+    }
+
+    let finishButton = '';
+    if (!event.finished) {
+      finishButton = (
+        <Button
+          bsStyle="primary"
+          className="pull-right"
+          onClick={this.handleConfirmFinish}
+        >
+          Finish
+        </Button>
+      );
     }
 
     return (
@@ -34,8 +92,17 @@ class Event extends React.Component {
         <Grid>
           <Row>
             <Col xs={12}>
-              <Panel>
-                {event.name}
+              <Panel
+                style={{
+                  height: '60px',
+                  lineHeight: '30px',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                }}
+              >
+                <span>{event.name}</span>
+                {finishButton}
+                {this.renderFinishConfirm()}
               </Panel>
             </Col>
           </Row>
