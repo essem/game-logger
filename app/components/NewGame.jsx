@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Grid, Well, Row, Col, Button, Modal } from 'react-bootstrap';
+import { Well, Row, Col, Button, Modal } from 'react-bootstrap';
 
 class NewGame extends React.Component {
   static propTypes = {
@@ -62,14 +62,12 @@ class NewGame extends React.Component {
           <Modal.Title>New Game</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Grid>
-            <Row>
-              <Col xs={12}>
-                {this.renderMessage()}
-              </Col>
-            </Row>
-            {players.map(player => this.renderPlayer(player))}
-          </Grid>
+          <Row>
+            <Col xs={12}>
+              {this.renderMessage()}
+            </Col>
+          </Row>
+          {players.map(player => this.renderPlayer(player))}
         </Modal.Body>
         <Modal.Footer>
           <Button
