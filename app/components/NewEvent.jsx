@@ -14,9 +14,10 @@ export default class NewEvent extends React.Component {
     e.focus();
   }
 
-  handleCreate = () => {
-    const e = ReactDOM.findDOMNode(this.addEventText);
-    this.props.onCreate(e.value);
+  handleCreate = e => {
+    e.preventDefault();
+    const input = ReactDOM.findDOMNode(this.addEventText);
+    this.props.onCreate(input.value);
   };
 
   render() {
@@ -26,7 +27,7 @@ export default class NewEvent extends React.Component {
           <Modal.Title>New Event</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={this.handleCreate}>
             <FormGroup>
               <FormControl
                 ref={e => { this.addEventText = e; }}
