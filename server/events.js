@@ -107,7 +107,7 @@ function init(app) {
 
   app.use(route.delete('/api/events/:eventId/games/:id', function* createGame(eventId, id) {
     const event = yield models.event.findOne({
-      where: { eventId },
+      where: { id: eventId },
     });
     if (event.finished) {
       this.status = 400;
