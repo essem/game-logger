@@ -74,8 +74,8 @@ class Events extends React.Component {
       return <span>Event is in progress...<br /></span>;
     }
 
-    return event.summary.split('\n').map(item => (
-      <span>
+    return event.summary.split('\n').map((item, i) => (
+      <span key={i}>
         {item}
         <br />
       </span>
