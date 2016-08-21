@@ -28,6 +28,12 @@ class Event extends React.Component {
     .catch(() => {});
   }
 
+  componentWillUnmount() {
+    this.props.dispatch({
+      type: 'CLEAR_EVENT',
+    });
+  }
+
   handleConfirmFinish = () => {
     this.setState({ showFinishConfirm: true });
   };

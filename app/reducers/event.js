@@ -1,9 +1,4 @@
-const initialState = {
-  players: [],
-  games: [],
-};
-
-const event = (state = initialState, action) => {
+const event = (state = null, action) => {
   switch (action.type) {
     case 'INIT_EVENT':
       return action.event;
@@ -31,6 +26,9 @@ const event = (state = initialState, action) => {
         ...state,
         finished: true,
       };
+
+    case 'CLEAR_EVENT':
+      return null;
 
     default:
       return state;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Grid } from 'react-bootstrap';
+import { Grid, Row, Col } from 'react-bootstrap';
 
 class Summary extends React.Component {
   static propTypes = {
@@ -9,13 +9,35 @@ class Summary extends React.Component {
   };
 
   render() {
-    let players = this.props.event.players.map(p => ({
+    const event = this.props.event;
+
+    if (event.games.length === 0) {
+      return (
+        <Grid>
+          <Row>
+            <Col
+              xs={12}
+              style={{
+                textAlign: 'center',
+                marginBottom: '10px',
+                fontSize: '12px',
+                fontStyle: 'italic',
+              }}
+            >
+            There is no game yet
+            </Col>
+          </Row>
+        </Grid>
+      );
+    }
+
+    let players = event.players.map(p => ({
       id: p.id,
       name: p.name,
       win: 0,
       lose: 0,
     }));
-    for (const game of this.props.event.games) {
+    for (const game of event.games) {
       for (const winner of game.winners) {
         players.find(p => p.id === winner).win += 1;
       }
@@ -29,8 +51,8 @@ class Summary extends React.Component {
     return (
       <Grid>
         <blockquote>
-          <b>{this.props.event.players.length}</b> players played{' '}
-          <b>{this.props.event.games.length}</b> games.
+          <b>{event.players.length}</b> players played{' '}
+          <b>{event.games.length}</b> games.
         </blockquote>
         <blockquote>
           <div style={{ marginBottom: '10px' }}>
