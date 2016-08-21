@@ -114,11 +114,11 @@ class Games extends React.Component {
     }
 
     return (
-      <Row style={{ marginBottom: '30px' }}>
+      <Row style={{ marginBottom: '20px' }}>
         <Col xs={6}>
           <Button
             bsStyle="primary"
-            style={{ width: '100%' }}
+            style={{ width: '100%', height: '50px' }}
             onClick={() => this.handleNewGame({ team: false })}
           >
             New Single Game
@@ -127,7 +127,7 @@ class Games extends React.Component {
         <Col xs={6}>
           <Button
             bsStyle="primary"
-            style={{ width: '100%' }}
+            style={{ width: '100%', height: '50px' }}
             onClick={() => this.handleNewGame({ team: true })}
           >
             New Team Game

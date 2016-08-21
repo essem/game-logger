@@ -108,7 +108,7 @@ class Events extends React.Component {
           <Col xs={12}>
             <Button
               bsStyle="primary"
-              style={{ width: '100%' }}
+              style={{ width: '100%', height: '50px' }}
               onClick={this.handleNewEvent}
             >
               New Event

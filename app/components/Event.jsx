@@ -114,7 +114,7 @@ class Event extends React.Component {
           </Row>
           <Row>
             <Col xs={12}>
-              <ButtonGroup justified>
+              <ButtonGroup justified style={{ height: '50px' }}>
                 <Link
                   to={`/events/${event.id}/players`}
                   className="btn btn-default"

@@ -62,11 +62,11 @@ class Players extends React.Component {
     }
 
     return (
-      <Row style={{ marginBottom: '30px' }}>
+      <Row style={{ marginBottom: '20px' }}>
         <Col xs={12}>
           <Button
             bsStyle="primary"
-            style={{ width: '100%' }}
+            style={{ width: '100%', height: '50px' }}
             onClick={this.handleNewPlayer}
           >
             New Player

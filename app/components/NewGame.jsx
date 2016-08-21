@@ -70,16 +70,14 @@ class NewGame extends React.Component {
 
   renderPlayer(player) {
     return (
-      <Row key={player.id}>
-        <Col xs={12}>
-          <Button
-            style={{ width: '100%', marginBottom: '10px' }}
-            onClick={() => this.handleClickPlayer(player.id)}
-          >
-            {player.name}
-          </Button>
-        </Col>
-      </Row>
+      <Col key={player.id} xs={4}>
+        <Button
+          style={{ width: '100%', height: '50px', marginBottom: '10px' }}
+          onClick={() => this.handleClickPlayer(player.id)}
+        >
+          {player.name}
+        </Button>
+      </Col>
     );
   }
 
@@ -112,7 +110,9 @@ class NewGame extends React.Component {
               {this.renderMessage()}
             </Col>
           </Row>
+          <Row>
           {players.map(player => this.renderPlayer(player))}
+          </Row>
         </Modal.Body>
         <Modal.Footer>
           <Button
