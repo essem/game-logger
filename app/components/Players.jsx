@@ -81,11 +81,8 @@ class Players extends React.Component {
     let win = 0;
     let lose = 0;
     for (const game of this.props.event.games) {
-      if (game.winnerId === player.id) {
-        ++win;
-      } else if (game.loserId === player.id) {
-        ++lose;
-      }
+      win += game.winners.filter(id => id === player.id).length;
+      lose += game.losers.filter(id => id === player.id).length;
     }
     return (
       <Panel

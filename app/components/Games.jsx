@@ -13,20 +13,20 @@ class Games extends React.Component {
   };
 
   state = {
-    showNewGameModal: false,
+    showNewGameModal: { show: false },
     showDeleteConfirm: false,
   };
 
-  handleNewGame = () => {
-    this.setState({ showNewGameModal: true });
+  handleNewGame = options => {
+    this.setState({ showNewGameModal: { show: true, ...options } });
   }
 
-  handleCreateGame = (winnerId, loserId) => {
-    this.setState({ showNewGameModal: false });
+  handleCreateGame = (winners, losers) => {
+    this.setState({ showNewGameModal: { show: false } });
 
     fetch(`${API_HOST}/api/events/${this.props.event.id}/games`, {
       method: 'post',
-      body: JSON.stringify({ winnerId, loserId }),
+      body: JSON.stringify({ winners, losers }),
     })
     .then(res => res.json())
     .then(res => {
@@ -39,7 +39,7 @@ class Games extends React.Component {
   }
 
   handleCloseNewGameModal = () => {
-    this.setState({ showNewGameModal: false });
+    this.setState({ showNewGameModal: { show: false } });
   }
 
   handleDelete = gameId => {
@@ -68,13 +68,22 @@ class Games extends React.Component {
     this.setState({ showDeleteConfirm: false, deleteGameId: null });
   }
 
+  renderGameTitle(game) {
+    const players = this.props.players;
+    const winners = game.winners.map(id => players.find(player => player.id === id).name);
+    const losers = game.losers.map(id => players.find(player => player.id === id).name);
+
+    return `${winners.join(', ')} vs ${losers.join(', ')}`;
+  }
+
   renderNewGameModal() {
-    if (!this.state.showNewGameModal) {
+    if (!this.state.showNewGameModal.show) {
       return '';
     }
 
     return (
       <NewGame
+        team={this.state.showNewGameModal.team}
         onCreate={this.handleCreateGame}
         onClose={this.handleCloseNewGameModal}
       />
@@ -87,12 +96,10 @@ class Games extends React.Component {
     }
 
     const game = this.props.games.find(g => g.id === this.state.deleteGameId);
-    const winner = this.props.players.find(player => player.id === game.winnerId);
-    const loser = this.props.players.find(player => player.id === game.loserId);
 
     return (
       <Confirm
-        message={`Delete the game '${winner.name} vs ${loser.name}'?`}
+        message={`Delete the game '${this.renderGameTitle(game)}'?`}
         okayText="Delete"
         okayStyle="danger"
         onOkay={this.handleDeleteGame}
@@ -108,27 +115,35 @@ class Games extends React.Component {
 
     return (
       <Row style={{ marginBottom: '30px' }}>
-        <Col xs={12}>
+        <Col xs={6}>
           <Button
             bsStyle="primary"
             style={{ width: '100%' }}
-            onClick={this.handleNewGame}
+            onClick={() => this.handleNewGame({ team: false })}
           >
-            New Game
+            New Single Game
           </Button>
-          {this.renderNewGameModal()}
-          {this.renderDeleteConfirm()}
         </Col>
+        <Col xs={6}>
+          <Button
+            bsStyle="primary"
+            style={{ width: '100%' }}
+            onClick={() => this.handleNewGame({ team: true })}
+          >
+            New Team Game
+          </Button>
+        </Col>
+        {this.renderNewGameModal()}
+        {this.renderDeleteConfirm()}
       </Row>
     );
   }
 
   renderGame(game) {
-    const winner = this.props.players.find(player => player.id === game.winnerId);
-    const loser = this.props.players.find(player => player.id === game.loserId);
+    const { event } = this.props;
 
     let deleteButton = '';
-    if (!this.props.event.finished) {
+    if (!event.finished) {
       deleteButton = (
         <span
           className="pull-right"
@@ -145,7 +160,7 @@ class Games extends React.Component {
         key={game.id}
         style={{ textAlign: 'center' }}
       >
-        <Badge>win</Badge> {winner.name} vs {loser.name} <Badge>lose</Badge>
+        <Badge>win</Badge> {this.renderGameTitle(game)} <Badge>lose</Badge>
         {deleteButton}
       </Panel>
     );

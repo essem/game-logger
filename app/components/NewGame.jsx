@@ -6,34 +6,64 @@ class NewGame extends React.Component {
   static propTypes = {
     dispatch: React.PropTypes.func,
     players: React.PropTypes.array,
+    team: React.PropTypes.bool,
     onCreate: React.PropTypes.func,
     onClose: React.PropTypes.func,
   };
 
   state = {
-    winnerId: null,
+    step: 'winner',
+    winners: [],
+    losers: [],
   }
 
   handleClickPlayer = playerId => {
-    if (!this.state.winnerId) {
-      this.setState({ winnerId: playerId });
+    if (!this.props.team) {
+      if (this.state.step === 'winner') {
+        const winners = this.state.winners.concat(playerId);
+        this.setState({ step: 'loser', winners });
+      } else {
+        const losers = this.state.losers.concat(playerId);
+        this.props.onCreate(this.state.winners, losers);
+      }
       return;
     }
 
-    this.props.onCreate(this.state.winnerId, playerId);
+    if (this.state.step === 'winner') {
+      const winners = this.state.winners.concat(playerId);
+      this.setState({ winners });
+    } else {
+      const losers = this.state.losers.concat(playerId);
+      this.setState({ losers });
+    }
   };
 
+  handleNext = () => {
+    if (this.state.step === 'winner') {
+      this.setState({ step: 'loser' });
+    } else {
+      this.props.onCreate(this.state.winners, this.state.losers);
+    }
+  }
+
   renderMessage() {
-    if (!this.state.winnerId) {
-      return <Well>Select winner</Well>;
+    let message = '';
+    if (this.state.step === 'winner') {
+      message = 'Select winner';
+    } else {
+      message = 'Select loser';
     }
 
-    const winner = this.props.players.find(player => player.id === this.state.winnerId);
+    const { players } = this.props;
+
+    const winners = this.state.winners.map(winner => players.find(p => p.id === winner).name);
+    const losers = this.state.losers.map(loser => players.find(p => p.id === loser).name);
 
     return (
       <Well>
-        Winner: {winner.name}<br />
-        Select loser
+        {message}<br />
+        Winner: {winners.join(', ')}<br />
+        Loser: {losers.join(', ')}<br />
       </Well>
     );
   }
@@ -50,6 +80,21 @@ class NewGame extends React.Component {
           </Button>
         </Col>
       </Row>
+    );
+  }
+
+  renderNextButton() {
+    if (!this.props.team) {
+      return '';
+    }
+
+    return (
+      <Button
+        bsStyle="primary"
+        onClick={this.handleNext}
+      >
+        {this.state.step === 'winner' ? 'Next' : 'Done'}
+      </Button>
     );
   }
 
@@ -75,6 +120,7 @@ class NewGame extends React.Component {
           >
             Cancel
           </Button>
+          {this.renderNextButton()}
         </Modal.Footer>
       </Modal>
     );

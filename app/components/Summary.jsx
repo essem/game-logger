@@ -16,8 +16,12 @@ class Summary extends React.Component {
       lose: 0,
     }));
     for (const game of this.props.event.games) {
-      players.find(p => p.id === game.winnerId).win += 1;
-      players.find(p => p.id === game.loserId).lose += 1;
+      for (const winner of game.winners) {
+        players.find(p => p.id === winner).win += 1;
+      }
+      for (const loser of game.losers) {
+        players.find(p => p.id === loser).lose += 1;
+      }
     }
 
     players = players.sort((a, b) => b.win - a.win);

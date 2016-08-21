@@ -24,7 +24,16 @@ function init(app) {
     });
     const ret = event.toJSON();
     ret.players = yield event.getPlayers();
-    ret.games = yield event.getGames();
+    const games = yield event.getGames();
+    ret.games = [];
+    for (const game of games) {
+      const g = game.toJSON();
+      const winners = yield game.getWinners();
+      g.winners = winners.map(w => w.playerId);
+      const losers = yield game.getLosers();
+      g.losers = losers.map(l => l.playerId);
+      ret.games.push(g);
+    }
     this.body = JSON.stringify(event);
   }));
 
@@ -42,29 +51,29 @@ function init(app) {
       });
       const playerCount = player.get('count');
 
-      const game = yield models.game.findOne({
-        attributes: [[models.sequelize.fn('COUNT', models.sequelize.col('id')), 'count']],
+      const game = yield models.game.findAll({
+        attributes: ['id'],
         where: { eventId: id },
       });
-      const gameCount = game.get('count');
+      const gameCount = game.length;
 
-      const mostWin = yield models.game.findOne({
+      const mostWin = yield models.winner.findOne({
         attributes: [
-          'winnerId',
+          'playerId',
           [
             models.sequelize.fn('COUNT', models.sequelize.col('id')),
             'count',
           ],
         ],
-        group: ['winnerId'],
-        where: { eventId: id },
+        group: ['playerId'],
+        where: { gameId: game.map(g => g.id) },
         order: 'count DESC',
         limit: 1,
       });
       const mostWinCount = mostWin.get('count');
 
       const mostWinner = yield models.player.findOne({
-        where: { id: mostWin.winnerId },
+        where: { id: mostWin.playerId },
       });
 
       event.summary = `${playerCount} players played ${gameCount} games.\n` +
@@ -99,9 +108,28 @@ function init(app) {
     }
     const newGame = yield models.game.create({
       eventId: id,
-      winnerId: body.winnerId,
-      loserId: body.loserId,
     });
+
+    const ret = newGame.toJSON();
+    ret.winners = [];
+    ret.losers = [];
+
+    for (const playerId of body.winners) {
+      yield models.winner.create({
+        gameId: newGame.id,
+        playerId,
+      });
+      ret.winners.push(playerId);
+    }
+
+    for (const playerId of body.losers) {
+      yield models.loser.create({
+        gameId: newGame.id,
+        playerId,
+      });
+      ret.losers.push(playerId);
+    }
+
     this.body = JSON.stringify(newGame);
   }));
 
@@ -115,6 +143,12 @@ function init(app) {
     }
     yield models.game.destroy({
       where: { id, eventId },
+    });
+    yield models.winner.destroy({
+      where: { gameId: id },
+    });
+    yield models.loser.destroy({
+      where: { gameId: id },
     });
     this.body = JSON.stringify({ id: parseInt(id, 10) });
   }));
