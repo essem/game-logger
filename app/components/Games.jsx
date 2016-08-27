@@ -73,7 +73,7 @@ class Games extends React.Component {
     const winners = game.winners.map(id => players.find(player => player.id === id).name);
     const losers = game.losers.map(id => players.find(player => player.id === id).name);
 
-    return `${winners.join(', ')} vs ${losers.join(', ')}`;
+    return `${winners.join(', ')} vs. ${losers.join(', ')}`;
   }
 
   renderNewGameModal() {
