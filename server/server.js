@@ -6,6 +6,7 @@ const send = require('koa-send');
 const morgan = require('koa-morgan');
 const config = require('config');
 const logger = require('./logger');
+const ws = require('./websocket');
 const models = require('./models');
 const events = require('./events');
 
@@ -37,6 +38,8 @@ function createKoa(hostname, port) {
 
   const envStr = process.env.NODE_ENV || 'development';
   logger.info(`server is started on ${hostname}:${port} in ${envStr} mode`);
+
+  ws.createServer(httpServer);
 
   return httpServer;
 }

@@ -15,5 +15,6 @@
   },
   "globals": {
     "API_HOST": false,
+    "WS_HOST": false,
   }
 }

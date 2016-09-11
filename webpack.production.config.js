@@ -17,6 +17,7 @@ module.exports = {
         NODE_ENV: JSON.stringify('production'),
       },
       API_HOST: JSON.stringify(''),
+      WS_HOST: JSON.stringify(''),
     }),
     new webpack.optimize.UglifyJsPlugin({
       compressor: {

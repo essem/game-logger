@@ -28,13 +28,6 @@ class Games extends React.Component {
       method: 'post',
       body: JSON.stringify({ winners, losers }),
     })
-    .then(res => res.json())
-    .then(res => {
-      this.props.dispatch({
-        type: 'CREATE_GAME',
-        game: res,
-      });
-    })
     .catch(() => {});
   }
 
@@ -53,13 +46,6 @@ class Games extends React.Component {
 
     fetch(`${API_HOST}/api/events/${this.props.event.id}/games/${gameId}`, {
       method: 'delete',
-    })
-    .then(res => res.json())
-    .then(res => {
-      this.props.dispatch({
-        type: 'DELETE_GAME',
-        id: res.id,
-      });
     })
     .catch(() => {});
   }

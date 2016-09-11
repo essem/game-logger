@@ -17,21 +17,61 @@ class Event extends React.Component {
   };
 
   componentDidMount() {
-    fetch(`${API_HOST}/api/events/${this.props.params.id}`)
+    const eventId = parseInt(this.props.params.id, 10);
+    fetch(`${API_HOST}/api/events/${eventId}`)
     .then(res => res.json())
     .then(event => {
       this.props.dispatch({
         type: 'INIT_EVENT',
         event,
       });
+
+      let wsHost = WS_HOST;
+      if (wsHost === '') {
+        const loc = window.location;
+        const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
+        wsHost = `${protocol}//${loc.host}`;
+      }
+
+      this.socket = new WebSocket(wsHost, 'watch');
+      this.socket.onopen = () => {
+        this.socket.send(JSON.stringify({ type: 'watch', eventId }));
+        this.socket.onmessage = e => this.handleSocketMessage(e.data);
+      };
     })
     .catch(() => {});
   }
 
   componentWillUnmount() {
+    this.socket.close();
     this.props.dispatch({
       type: 'CLEAR_EVENT',
     });
+  }
+
+  handleSocketMessage(data) {
+    const message = JSON.parse(data);
+    switch (message.type) {
+      case 'createGame':
+        this.props.dispatch({
+          type: 'CREATE_GAME',
+          game: message.game,
+        });
+        break;
+      case 'deleteGame':
+        this.props.dispatch({
+          type: 'DELETE_GAME',
+          id: message.gameId,
+        });
+        break;
+      case 'createPlayer':
+        this.props.dispatch({
+          type: 'CREATE_PLAYER',
+          player: message.player,
+        });
+        break;
+      default:
+    }
   }
 
   handleConfirmFinish = () => {

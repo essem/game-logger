@@ -29,13 +29,6 @@ class Players extends React.Component {
       method: 'post',
       body: JSON.stringify({ name }),
     })
-    .then(res => res.json())
-    .then(res => {
-      this.props.dispatch({
-        type: 'CREATE_PLAYER',
-        player: res,
-      });
-    })
     .catch(() => {});
   }
 

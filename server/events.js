@@ -3,6 +3,7 @@
 const route = require('koa-route');
 const parse = require('co-body');
 const models = require('./models');
+const websocket = require('./websocket');
 
 function init(app) {
   app.use(route.get('/api/events', function* listEvents() {
@@ -94,7 +95,9 @@ function init(app) {
       return;
     }
     const newPlayer = yield models.player.create({ eventId: id, name: body.name });
-    this.body = JSON.stringify(newPlayer);
+
+    this.status = 200;
+    websocket.send(id, { type: 'createPlayer', player: newPlayer });
   }));
 
   app.use(route.post('/api/events/:id/games', function* createGame(id) {
@@ -130,7 +133,8 @@ function init(app) {
       ret.losers.push(playerId);
     }
 
-    this.body = JSON.stringify(newGame);
+    this.status = 200;
+    websocket.send(id, { type: 'createGame', game: newGame });
   }));
 
   app.use(route.delete('/api/events/:eventId/games/:id', function* createGame(eventId, id) {
@@ -150,7 +154,9 @@ function init(app) {
     yield models.loser.destroy({
       where: { gameId: id },
     });
-    this.body = JSON.stringify({ id: parseInt(id, 10) });
+
+    this.status = 200;
+    websocket.send(eventId, { type: 'deleteGame', gameId: parseInt(id, 10) });
   }));
 }
 
