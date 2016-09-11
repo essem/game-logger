@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button, Badge, Glyphicon } from 'react-bootstrap';
 import NewGame from './NewGame.jsx';
@@ -173,7 +174,13 @@ class Games extends React.Component {
         </Row>
         <Row>
           <Col xs={12}>
-          {games.map(game => this.renderGame(game))}
+            <ReactCSSTransitionGroup
+              transitionName="list"
+              transitionEnterTimeout={600}
+              transitionLeaveTimeout={600}
+            >
+              {games.map(game => this.renderGame(game))}
+            </ReactCSSTransitionGroup>
           </Col>
         </Row>
       </Grid>

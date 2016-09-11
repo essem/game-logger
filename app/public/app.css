@@ -1,0 +1,22 @@
+.list-enter {
+  max-height: 0px;
+  overflow: hidden;
+  transform: scale(1, 0);
+}
+
+.list-enter.list-enter-active {
+  max-height: 100px;
+  transform: scale(1, 1);
+  transition: max-height 300ms ease-in, transform 300ms 300ms ease-in;
+}
+
+.list-leave {
+  max-height: 100px;
+  transform: scale(1, 1);
+}
+
+.list-leave.list-leave-active {
+  max-height: 0px;
+  transform: scale(1, 0);
+  transition: max-height 300ms 300ms ease-in, transform 300ms ease-in;
+}

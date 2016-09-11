@@ -8,6 +8,7 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import eventsReducer from './reducers/events';
 import eventReducer from './reducers/event';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
+import './public/app.css';
 import Topbar from './components/Topbar.jsx';
 import Home from './components/Home.jsx';
 import Events from './components/Events.jsx';
