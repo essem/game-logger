@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
-import { Navbar, Nav } from 'react-bootstrap';
+import { Navbar, Nav, NavItem } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 
 export default class Home extends React.Component {
   static propTypes = {
@@ -19,7 +20,9 @@ export default class Home extends React.Component {
           </Navbar.Header>
           <Navbar.Collapse>
             <Nav>
-              <li><Link to="/events">Events</Link></li>
+              <LinkContainer to="/events">
+                <NavItem>Events</NavItem>
+              </LinkContainer>
             </Nav>
           </Navbar.Collapse>
         </Navbar>
