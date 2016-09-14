@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Grid, Row, Col, Panel, ButtonGroup, Button } from 'react-bootstrap';
+import { Grid, Row, Col, Panel, Badge, ButtonGroup, Button } from 'react-bootstrap';
 import { Link } from 'react-router';
 import Confirm from './Confirm.jsx';
 
@@ -14,6 +14,7 @@ class Event extends React.Component {
 
   state = {
     showFinishConfirm: false,
+    wsState: 'offline',
   };
 
   componentDidMount() {
@@ -26,28 +27,54 @@ class Event extends React.Component {
         event,
       });
 
-      let wsHost = WS_HOST;
-      if (wsHost === '') {
-        const loc = window.location;
-        const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
-        wsHost = `${protocol}//${loc.host}`;
+      if (!event.finished) {
+        this.wsConnect();
       }
-
-      this.socket = new WebSocket(wsHost, 'watch');
-      this.socket.onopen = () => {
-        this.socket.send(JSON.stringify({ type: 'watch', eventId }));
-        this.socket.onmessage = e => this.handleSocketMessage(e.data);
-      };
     })
     .catch(() => {});
   }
 
   componentWillUnmount() {
-    this.socket.close();
+    if (this.socket) {
+      this.socket.onclose = () => {};
+      this.socket.close();
+    }
+    if (this.wsReconnectTimer) {
+      clearTimeout(this.wsReconnectTimer);
+    }
     this.props.dispatch({
       type: 'CLEAR_EVENT',
     });
   }
+
+  wsConnect = () => {
+    const eventId = parseInt(this.props.params.id, 10);
+    let wsHost = WS_HOST;
+    if (wsHost === '') {
+      const loc = window.location;
+      const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
+      wsHost = `${protocol}//${loc.host}`;
+    }
+
+    this.socket = new WebSocket(wsHost, 'watch');
+    this.socket.onopen = () => {
+      this.setState({ wsState: 'online' });
+      this.socket.send(JSON.stringify({ type: 'watch', eventId }));
+      this.socket.onmessage = e => this.handleSocketMessage(e.data);
+      this.socket.onclose = () => {
+        this.setState({ wsState: 'offline' }, () => this.wsReconnect());
+      };
+    };
+  };
+
+  wsReconnect = () => {
+    if (this.state.wsState === 'online') {
+      return;
+    }
+
+    this.wsReconnectTimer = setTimeout(this.wsReconnect, 2000);
+    this.wsConnect();
+  };
 
   handleSocketMessage(data) {
     const message = JSON.parse(data);
@@ -96,6 +123,25 @@ class Event extends React.Component {
 
   handleCloseFinishConfirm = () => {
     this.setState({ showFinishConfirm: false });
+  }
+
+  renderWsBadge() {
+    if (this.props.event.finished) {
+      return '';
+    }
+
+    const wsStateBgColor = this.state.wsState === 'online' ? 'green' : 'red';
+
+    return (
+      <Badge
+        style={{
+          marginLeft: '10px',
+          backgroundColor: wsStateBgColor,
+        }}
+      >
+        {this.state.wsState}
+      </Badge>
+    );
   }
 
   renderFinishConfirm() {
@@ -147,6 +193,7 @@ class Event extends React.Component {
                 }}
               >
                 <span>{event.name}</span>
+                {this.renderWsBadge()}
                 {finishButton}
                 {this.renderFinishConfirm()}
               </Panel>
