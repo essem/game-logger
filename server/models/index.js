@@ -5,13 +5,19 @@ const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize(
-  config.database.db,
-  config.database.username,
-  config.database.password, {
-    dialect: 'postgres',
-    host: config.database.host,
-  });
+let sequelize;
+if (process.env.DATABASE_URL) {
+  sequelize = new Sequelize(process.env.DATABASE_URL);
+} else {
+  sequelize = new Sequelize(
+    config.database.db,
+    config.database.username,
+    config.database.password, {
+      dialect: 'postgres',
+      host: config.database.host,
+    }
+  );
+}
 
 const db = {};
 

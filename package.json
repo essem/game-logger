@@ -16,6 +16,9 @@
   },
   "author": "essem",
   "license": "ISC",
+  "engines": {
+    "node": "6.4.0"
+  },
   "dependencies": {
     "co-body": "^4.2.0",
     "config": "^1.21.0",
