@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button, Modal, Form, FormGroup, FormControl } from 'react-bootstrap';
+import moment from 'moment';
 
 export default class NewEvent extends React.Component {
   static propTypes = {
@@ -10,8 +11,10 @@ export default class NewEvent extends React.Component {
   };
 
   componentDidMount() {
-    const e = ReactDOM.findDOMNode(this.addEventText);
-    e.focus();
+    const input = ReactDOM.findDOMNode(this.addEventText);
+    input.value = moment().format('YYYY-MM-DD HH:mm:ss');
+    input.select();
+    input.focus();
   }
 
   handleCreate = e => {
