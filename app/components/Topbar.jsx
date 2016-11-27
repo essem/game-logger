@@ -1,12 +1,46 @@
 import React from 'react';
-import { Link } from 'react-router';
-import { Navbar, Nav, NavItem } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import { browserHistory, Link } from 'react-router';
+import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
-export default class Home extends React.Component {
+class Home extends React.Component {
   static propTypes = {
     children: React.PropTypes.element,
+    dispatch: React.PropTypes.func,
+    account: React.PropTypes.string,
   };
+
+  handleLogout = () => {
+    fetch(`${API_HOST}/api/logout`, {
+      method: 'post',
+    })
+    .then(() => {
+      this.props.dispatch({
+        type: 'LOGOUT',
+      });
+      browserHistory.push('/');
+    })
+    .catch(() => {});
+  };
+
+  renderLogin() {
+    if (this.props.account) {
+      return (
+        <NavDropdown title={this.props.account} id="login">
+          <MenuItem onClick={this.handleLogout}>
+            Logout
+          </MenuItem>
+        </NavDropdown>
+      );
+    }
+
+    return (
+      <LinkContainer to="/login">
+        <NavItem>Login</NavItem>
+      </LinkContainer>
+    );
+  }
 
   render() {
     return (
@@ -24,6 +58,9 @@ export default class Home extends React.Component {
                 <NavItem>Events</NavItem>
               </LinkContainer>
             </Nav>
+            <Nav pullRight>
+              {this.renderLogin()}
+            </Nav>
           </Navbar.Collapse>
         </Navbar>
         {this.props.children}
@@ -31,3 +68,9 @@ export default class Home extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  account: state.app.account,
+});
+
+export default connect(mapStateToProps)(Home);

@@ -43,8 +43,8 @@ function init(app) {
     const event = yield models.event.findOne({
       where: { id },
     });
-    if (body.finished) {
-      event.finished = true; // un-finish is not allowed
+    if (body.finished === true) {
+      event.finished = true;
 
       const player = yield models.player.findOne({
         attributes: [[models.sequelize.fn('COUNT', models.sequelize.col('id')), 'count']],
@@ -79,6 +79,12 @@ function init(app) {
 
       event.summary = `${playerCount} players played ${gameCount} games.\n` +
                       `Most wins: ${mostWinCount} wins by ${mostWinner.name}`;
+    } else if (body.finished === false) {
+      if (!this.session.account) {
+        this.status = 401;
+        return;
+      }
+      event.finished = false;
     }
 
     yield event.save();

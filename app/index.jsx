@@ -5,12 +5,14 @@ import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
+import appReducer from './reducers/app';
 import eventsReducer from './reducers/events';
 import eventReducer from './reducers/event';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import './public/app.css';
 import Topbar from './components/Topbar.jsx';
 import Home from './components/Home.jsx';
+import Login from './components/Login.jsx';
 import Events from './components/Events.jsx';
 import Event from './components/Event.jsx';
 import Players from './components/Players.jsx';
@@ -22,6 +24,7 @@ document.body.appendChild(app);
 
 const store = createStore(
   combineReducers({
+    app: appReducer,
     events: eventsReducer,
     event: eventReducer,
     routing: routerReducer,
@@ -37,6 +40,7 @@ ReactDOM.render((
     <Router history={history}>
       <Route path="/" component={Topbar}>
         <IndexRoute component={Home} />
+        <Route path="login" component={Login} />
         <Route path="events">
           <IndexRoute component={Events} />
           <Route path=":id" component={Event}>

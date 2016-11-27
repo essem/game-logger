@@ -27,6 +27,12 @@ const event = (state = null, action) => {
         finished: true,
       };
 
+    case 'REOPEN_EVENT':
+      return {
+        ...state,
+        finished: false,
+      };
+
     case 'CLEAR_EVENT':
       return null;
 

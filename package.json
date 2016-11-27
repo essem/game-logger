@@ -28,6 +28,7 @@
     "koa-morgan": "=0.x",
     "koa-route": "^2.4.2",
     "koa-send": "^3.2.0",
+    "koa-session": "^3.4.0",
     "koa-static": "^2.0.0",
     "mkdirp": "^0.5.1",
     "moment": "^2.14.1",

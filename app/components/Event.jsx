@@ -7,6 +7,7 @@ import Confirm from './Confirm.jsx';
 class Event extends React.Component {
   static propTypes = {
     dispatch: React.PropTypes.func,
+    admin: React.PropTypes.bool,
     event: React.PropTypes.object,
     children: React.PropTypes.element,
     params: React.PropTypes.object,
@@ -125,6 +126,22 @@ class Event extends React.Component {
     this.setState({ showFinishConfirm: false });
   }
 
+  handleReopen = () => {
+    fetch(`${API_HOST}/api/events/${this.props.event.id}`, {
+      credentials: 'include',
+      method: 'put',
+      body: JSON.stringify({ finished: false }),
+    })
+    .then(res => res.json())
+    .then(() => {
+      this.props.dispatch({
+        type: 'REOPEN_EVENT',
+      });
+      this.wsConnect();
+    })
+    .catch(() => {});
+  }
+
   renderWsBadge() {
     if (this.props.event.finished) {
       return '';
@@ -175,6 +192,16 @@ class Event extends React.Component {
           onClick={this.handleConfirmFinish}
         >
           Finish
+        </Button>
+      );
+    } else if (this.props.admin) {
+      finishButton = (
+        <Button
+          bsStyle="primary"
+          className="pull-right"
+          onClick={this.handleReopen}
+        >
+          Re-open
         </Button>
       );
     }
@@ -235,6 +262,7 @@ class Event extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  admin: state.app.admin,
   event: state.event,
 });
 

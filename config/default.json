@@ -3,6 +3,11 @@
   "port": 5000,
   "serveStatic": false,
   "cors": true,
+  "auth": {
+    "keys": ["some secret hurr"],
+    "account": "tj",
+    "password": "tobi"
+  },
   "database": {
     "host": "localhost",
     "db": "gameLogger",

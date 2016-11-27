@@ -3,11 +3,13 @@
 const koa = require('koa');
 const cors = require('koa-cors');
 const send = require('koa-send');
+const session = require('koa-session');
 const morgan = require('koa-morgan');
 const config = require('config');
 const logger = require('./logger');
 const ws = require('./websocket');
 const models = require('./models');
+const auth = require('./auth');
 const events = require('./events');
 
 function createKoa(hostname, port) {
@@ -21,9 +23,13 @@ function createKoa(hostname, port) {
   app.use(morgan.middleware('combined', { stream }));
 
   if (config.get('cors')) {
-    app.use(cors());
+    app.use(cors({ credentials: true }));
   }
 
+  app.keys = config.auth.keys;
+  app.use(session(app));
+
+  auth(app);
   events(app);
 
   if (config.get('serveStatic')) {
