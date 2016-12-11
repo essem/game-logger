@@ -1,7 +1,6 @@
 'use strict';
 
 const route = require('koa-route');
-const parse = require('co-body');
 const models = require('./models');
 const websocket = require('./websocket');
 
@@ -14,8 +13,8 @@ function init(app) {
   }));
 
   app.use(route.post('/api/events', function* createEvent() {
-    const body = yield parse.json(this);
-    const newEvent = yield models.event.create({ name: body.name });
+    const req = this.request.body;
+    const newEvent = yield models.event.create({ name: req.name });
     this.body = JSON.stringify(newEvent);
   }));
 
@@ -39,11 +38,11 @@ function init(app) {
   }));
 
   app.use(route.put('/api/events/:id', function* updateEvent(id) {
-    const body = yield parse.json(this);
+    const req = this.request.body;
     const event = yield models.event.findOne({
       where: { id },
     });
-    if (body.finished === true) {
+    if (req.finished === true) {
       event.finished = true;
 
       const player = yield models.player.findOne({
@@ -79,8 +78,8 @@ function init(app) {
 
       event.summary = `${playerCount} players played ${gameCount} games.\n` +
                       `Most wins: ${mostWinCount} wins by ${mostWinner.name}`;
-    } else if (body.finished === false) {
-      if (!this.session.account) {
+    } else if (req.finished === false) {
+      if (!this.admin) {
         this.status = 401;
         return;
       }
@@ -92,7 +91,7 @@ function init(app) {
   }));
 
   app.use(route.post('/api/events/:id/players', function* createPlayer(id) {
-    const body = yield parse.json(this);
+    const req = this.request.body;
     const event = yield models.event.findOne({
       where: { id },
     });
@@ -100,14 +99,14 @@ function init(app) {
       this.status = 400;
       return;
     }
-    const newPlayer = yield models.player.create({ eventId: id, name: body.name });
+    const newPlayer = yield models.player.create({ eventId: id, name: req.name });
 
     this.status = 200;
     websocket.send(id, { type: 'createPlayer', player: newPlayer });
   }));
 
   app.use(route.post('/api/events/:id/games', function* createGame(id) {
-    const body = yield parse.json(this);
+    const req = this.request.body;
     const event = yield models.event.findOne({
       where: { id },
     });
@@ -123,7 +122,7 @@ function init(app) {
     ret.winners = [];
     ret.losers = [];
 
-    for (const playerId of body.winners) {
+    for (const playerId of req.winners) {
       yield models.winner.create({
         gameId: newGame.id,
         playerId,
@@ -131,7 +130,7 @@ function init(app) {
       ret.winners.push(playerId);
     }
 
-    for (const playerId of body.losers) {
+    for (const playerId of req.losers) {
       yield models.loser.create({
         gameId: newGame.id,
         playerId,

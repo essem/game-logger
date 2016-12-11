@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button, Badge, Glyphicon } from 'react-bootstrap';
 import NewGame from './NewGame.jsx';
 import Confirm from './Confirm.jsx';
+import http from '../http';
 
 class Games extends React.Component {
   static propTypes = {
@@ -25,10 +26,8 @@ class Games extends React.Component {
   handleCreateGame = (winners, losers) => {
     this.setState({ showNewGameModal: { show: false } });
 
-    fetch(`${API_HOST}/api/events/${this.props.event.id}/games`, {
-      method: 'post',
-      body: JSON.stringify({ winners, losers }),
-    })
+    http.post(`/api/events/${this.props.event.id}/games`,
+      { winners, losers })
     .catch(() => {});
   }
 
@@ -45,9 +44,7 @@ class Games extends React.Component {
 
     this.setState({ showDeleteConfirm: false, deleteGameId: null });
 
-    fetch(`${API_HOST}/api/events/${this.props.event.id}/games/${gameId}`, {
-      method: 'delete',
-    })
+    http.delete(`/api/events/${this.props.event.id}/games/${gameId}`)
     .catch(() => {});
   }
 

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Badge, ButtonGroup, Button } from 'react-bootstrap';
 import { Link } from 'react-router';
 import Confirm from './Confirm.jsx';
+import http from '../http';
 
 class Event extends React.Component {
   static propTypes = {
@@ -20,8 +21,7 @@ class Event extends React.Component {
 
   componentDidMount() {
     const eventId = parseInt(this.props.params.id, 10);
-    fetch(`${API_HOST}/api/events/${eventId}`)
-    .then(res => res.json())
+    http.get(`/api/events/${eventId}`)
     .then(event => {
       this.props.dispatch({
         type: 'INIT_EVENT',
@@ -109,11 +109,7 @@ class Event extends React.Component {
   handleFinish = () => {
     this.setState({ showFinishConfirm: false });
 
-    fetch(`${API_HOST}/api/events/${this.props.event.id}`, {
-      method: 'put',
-      body: JSON.stringify({ finished: true }),
-    })
-    .then(res => res.json())
+    http.put(`/api/events/${this.props.event.id}`, { finished: true })
     .then(() => {
       this.props.dispatch({
         type: 'FINISH_EVENT',
@@ -127,12 +123,7 @@ class Event extends React.Component {
   }
 
   handleReopen = () => {
-    fetch(`${API_HOST}/api/events/${this.props.event.id}`, {
-      credentials: 'include',
-      method: 'put',
-      body: JSON.stringify({ finished: false }),
-    })
-    .then(res => res.json())
+    http.put(`/api/events/${this.props.event.id}`, { finished: false })
     .then(() => {
       this.props.dispatch({
         type: 'REOPEN_EVENT',

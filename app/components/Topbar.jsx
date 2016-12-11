@@ -4,24 +4,29 @@ import { browserHistory, Link } from 'react-router';
 import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
-class Home extends React.Component {
+class Topbar extends React.Component {
   static propTypes = {
     children: React.PropTypes.element,
     dispatch: React.PropTypes.func,
     account: React.PropTypes.string,
   };
 
-  handleLogout = () => {
-    fetch(`${API_HOST}/api/logout`, {
-      method: 'post',
-    })
-    .then(() => {
+  componentDidMount() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // TODO: Ask to server if token is valid
       this.props.dispatch({
-        type: 'LOGOUT',
+        type: 'LOGIN',
+        token,
       });
-      browserHistory.push('/');
-    })
-    .catch(() => {});
+    }
+  }
+
+  handleLogout = () => {
+    this.props.dispatch({
+      type: 'LOGOUT',
+    });
+    browserHistory.push('/');
   };
 
   renderLogin() {
@@ -73,4 +78,4 @@ const mapStateToProps = state => ({
   account: state.app.account,
 });
 
-export default connect(mapStateToProps)(Home);
+export default connect(mapStateToProps)(Topbar);

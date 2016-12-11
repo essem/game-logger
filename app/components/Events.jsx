@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button } from 'react-bootstrap';
 import { browserHistory, Link } from 'react-router';
 import NewEvent from './NewEvent.jsx';
+import http from '../http';
 
 class Events extends React.Component {
   static propTypes = {
@@ -15,8 +16,7 @@ class Events extends React.Component {
   };
 
   componentDidMount() {
-    fetch(`${API_HOST}/api/events`)
-    .then(res => res.json())
+    http.get('/api/events')
     .then(events => {
       this.props.dispatch({
         type: 'INIT_EVENTS',
@@ -37,11 +37,7 @@ class Events extends React.Component {
 
     this.setState({ showNewEventModal: false });
 
-    fetch(`${API_HOST}/api/events`, {
-      method: 'post',
-      body: JSON.stringify({ name }),
-    })
-    .then(res => res.json())
+    http.post('/api/events', { name })
     .then(res => {
       this.props.dispatch({
         type: 'CREATE_EVENT',

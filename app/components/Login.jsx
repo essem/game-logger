@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import { Grid, Row, Col, Panel, Button, FormGroup, ControlLabel,
   Form, FormControl, Alert } from 'react-bootstrap';
 import { browserHistory } from 'react-router';
+import http from '../http';
 
 class Login extends React.Component {
   static propTypes = {
@@ -18,19 +19,14 @@ class Login extends React.Component {
     e.preventDefault();
     const account = ReactDOM.findDOMNode(this.account).value;
     const password = ReactDOM.findDOMNode(this.password).value;
-    fetch(`${API_HOST}/api/login`, {
-      credentials: 'include',
-      method: 'post',
-      body: JSON.stringify({ account, password }),
-    })
-    .then(res => res.json())
+    http.post('/api/login', { account, password })
     .then(res => {
-      if (res.account) {
+      if (res.token) {
         this.props.dispatch({
           type: 'LOGIN',
-          account: res.account,
-          admin: res.admin,
+          token: res.token,
         });
+        localStorage.setItem('token', res.token);
         browserHistory.push('/');
       } else {
         this.setState({ loginMessage: 'Failed to login' });

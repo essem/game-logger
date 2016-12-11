@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button } from 'react-bootstrap';
 import NewPlayer from './NewPlayer.jsx';
+import http from '../http';
 
 class Players extends React.Component {
   static propTypes = {
@@ -25,10 +26,7 @@ class Players extends React.Component {
 
     this.setState({ showNewPlayerModal: false });
 
-    fetch(`${API_HOST}/api/events/${this.props.event.id}/players`, {
-      method: 'post',
-      body: JSON.stringify({ name }),
-    })
+    http.post(`/api/events/${this.props.event.id}/players`, { name })
     .catch(() => {});
   }
 

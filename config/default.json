@@ -4,7 +4,7 @@
   "serveStatic": false,
   "cors": true,
   "auth": {
-    "keys": ["some secret hurr"],
+    "secret": "some secret hurr",
     "account": "tj",
     "password": "tobi"
   },
