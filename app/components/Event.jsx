@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Grid, Row, Col, Panel, Badge, ButtonGroup, Button } from 'react-bootstrap';
-import { Link } from 'react-router';
+import { Grid, Row, Col, Panel, Badge, ButtonGroup, Button, ButtonToolbar } from 'react-bootstrap';
+import { browserHistory, Link } from 'react-router';
 import Confirm from './Confirm.jsx';
 import http from '../http';
 
@@ -16,6 +16,7 @@ class Event extends React.Component {
 
   state = {
     showFinishConfirm: false,
+    showDeleteConfirm: false,
     wsState: 'offline',
   };
 
@@ -133,6 +134,28 @@ class Event extends React.Component {
     .catch(() => {});
   }
 
+  handleConfirmDelete = () => {
+    this.setState({ showDeleteConfirm: true });
+  };
+
+  handleDelete = () => {
+    this.setState({ showDeleteConfirm: false });
+
+    http.delete(`/api/events/${this.props.event.id}`)
+    .then(res => {
+      this.props.dispatch({
+        type: 'DELETE_EVENT',
+        id: res.id,
+      });
+      browserHistory.push('/events');
+    })
+    .catch(() => {});
+  }
+
+  handleCloseDeleteConfirm = () => {
+    this.setState({ showDeleteConfirm: false });
+  }
+
   renderWsBadge() {
     if (this.props.event.finished) {
       return '';
@@ -168,6 +191,22 @@ class Event extends React.Component {
     );
   }
 
+  renderDeleteConfirm() {
+    if (!this.state.showDeleteConfirm) {
+      return '';
+    }
+
+    return (
+      <Confirm
+        message="Delete the event?"
+        okayText="Delete"
+        okayStyle="danger"
+        onOkay={this.handleDelete}
+        onCancel={this.handleCloseDeleteConfirm}
+      />
+    );
+  }
+
   render() {
     const event = this.props.event;
     if (!event) {
@@ -187,13 +226,20 @@ class Event extends React.Component {
       );
     } else if (this.props.admin) {
       finishButton = (
-        <Button
-          bsStyle="primary"
-          className="pull-right"
-          onClick={this.handleReopen}
-        >
-          Re-open
-        </Button>
+        <ButtonToolbar className="pull-right">
+          <Button
+            bsStyle="primary"
+            onClick={this.handleReopen}
+          >
+            Re-open
+          </Button>
+          <Button
+            bsStyle="danger"
+            onClick={this.handleConfirmDelete}
+          >
+            Delete
+          </Button>
+        </ButtonToolbar>
       );
     }
 
@@ -214,6 +260,7 @@ class Event extends React.Component {
                 {this.renderWsBadge()}
                 {finishButton}
                 {this.renderFinishConfirm()}
+                {this.renderDeleteConfirm()}
               </Panel>
             </Col>
           </Row>

@@ -33,6 +33,9 @@ const event = (state = null, action) => {
         finished: false,
       };
 
+    case 'DELETE_EVENT':
+      return null;
+
     case 'CLEAR_EVENT':
       return null;
 

@@ -3,6 +3,7 @@
 const route = require('koa-route');
 const models = require('./models');
 const websocket = require('./websocket');
+const logger = require('./logger');
 
 function init(app) {
   app.use(route.get('/api/events', function* listEvents() {
@@ -90,6 +91,21 @@ function init(app) {
     this.body = JSON.stringify({ id });
   }));
 
+  app.use(route.delete('/api/events/:id', function* deleteEvent(id) {
+    if (!this.admin) {
+      this.status = 401;
+      return;
+    }
+
+    const event = yield models.event.findOne({
+      where: { id },
+    });
+
+    yield event.destroy();
+
+    this.body = JSON.stringify({ id });
+  }));
+
   app.use(route.post('/api/events/:id/players', function* createPlayer(id) {
     const req = this.request.body;
     const event = yield models.event.findOne({
@@ -142,23 +158,22 @@ function init(app) {
     websocket.send(id, { type: 'createGame', game: newGame });
   }));
 
-  app.use(route.delete('/api/events/:eventId/games/:id', function* createGame(eventId, id) {
+  app.use(route.delete('/api/events/:eventId/games/:id', function* deleteGame(eventId, id) {
     const event = yield models.event.findOne({
       where: { id: eventId },
     });
     if (event.finished) {
+      logger.info(`try to delete game in finished event:${eventId}`);
       this.status = 400;
       return;
     }
-    yield models.game.destroy({
-      where: { id, eventId },
-    });
-    yield models.winner.destroy({
-      where: { gameId: id },
-    });
-    yield models.loser.destroy({
-      where: { gameId: id },
-    });
+    const games = yield event.getGames({ where: { id } });
+    if (games.length !== 1) {
+      logger.info(`invalid game id:${id}`);
+      return;
+    }
+
+    yield games[0].destroy();
 
     this.status = 200;
     websocket.send(eventId, { type: 'deleteGame', gameId: parseInt(id, 10) });

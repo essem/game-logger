@@ -5,8 +5,8 @@ module.exports = sequelize => {
   }, {
     classMethods: {
       associate: models => {
-        game.hasMany(models.winner);
-        game.hasMany(models.loser);
+        game.hasMany(models.winner, { onDelete: 'cascade', hooks: true });
+        game.hasMany(models.loser, { onDelete: 'cascade', hooks: true });
       },
     },
   });
