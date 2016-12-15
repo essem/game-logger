@@ -99,6 +99,12 @@ class Event extends React.Component {
           player: message.player,
         });
         break;
+      case 'deletePlayer':
+        this.props.dispatch({
+          type: 'DELETE_PLAYER',
+          id: message.playerId,
+        });
+        break;
       default:
     }
   }

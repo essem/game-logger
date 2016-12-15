@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Grid, Row, Col, Panel, Button } from 'react-bootstrap';
+import { Grid, Row, Col, Panel, Button, Glyphicon } from 'react-bootstrap';
 import NewPlayer from './NewPlayer.jsx';
 import http from '../http';
 
@@ -32,6 +32,11 @@ class Players extends React.Component {
 
   handleCloseNewPlayerModal = () => {
     this.setState({ showNewPlayerModal: false });
+  }
+
+  handleDeletePlayer = playerId => {
+    http.delete(`/api/events/${this.props.event.id}/players/${playerId}`)
+    .catch(() => {});
   }
 
   renderNewPlayerModal() {
@@ -69,12 +74,28 @@ class Players extends React.Component {
   }
 
   renderPlayer(player) {
+    const { event } = this.props;
+
     let win = 0;
     let lose = 0;
-    for (const game of this.props.event.games) {
+    for (const game of event.games) {
       win += game.winners.filter(id => id === player.id).length;
       lose += game.losers.filter(id => id === player.id).length;
     }
+
+    let deleteButton = '';
+    if (!event.finished && win === 0 && lose === 0) {
+      deleteButton = (
+        <span
+          className="pull-right"
+          style={{ color: '#ccc', marginLeft: '15px' }}
+          onClick={() => this.handleDeletePlayer(player.id)}
+        >
+          <Glyphicon glyph="remove" />
+        </span>
+      );
+    }
+
     return (
       <Panel
         key={player.id}
@@ -82,6 +103,7 @@ class Players extends React.Component {
         {player.name}
         <span className="pull-right">
           {win} W {lose} L
+          {deleteButton}
         </span>
       </Panel>
     );

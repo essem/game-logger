@@ -9,6 +9,12 @@ const event = (state = null, action) => {
         players: [...state.players, action.player],
       };
 
+    case 'DELETE_PLAYER':
+      return {
+        ...state,
+        players: state.players.filter(p => p.id !== action.id),
+      };
+
     case 'CREATE_GAME':
       return {
         ...state,

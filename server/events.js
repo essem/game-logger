@@ -1,6 +1,7 @@
 'use strict';
 
 const route = require('koa-route');
+const _ = require('lodash');
 const models = require('./models');
 const websocket = require('./websocket');
 const logger = require('./logger');
@@ -119,6 +120,50 @@ function init(app) {
 
     this.status = 200;
     websocket.send(id, { type: 'createPlayer', player: newPlayer });
+  }));
+
+  app.use(route.delete('/api/events/:eventId/players/:id', function* deleteGame(eventId, id) {
+    const intId = parseInt(id, 10);
+
+    const event = yield models.event.findOne({
+      where: { id: eventId },
+    });
+
+    if (event.finished) {
+      logger.warn(`try to delete game in finished event:${eventId}`);
+      this.status = 400;
+      return;
+    }
+
+    const players = yield event.getPlayers({ where: { id } });
+    if (players.length !== 1) {
+      logger.warn(`invalid player id:${id}`);
+      return;
+    }
+
+    let found = false;
+    const games = yield event.getGames();
+    for (const game of games) {
+      const winners = yield game.getWinners();
+      if (_.some(winners, winner => winner.playerId === intId)) {
+        found = true;
+        break;
+      }
+      const losers = yield game.getLosers();
+      if (_.some(losers, loser => loser.playerId === intId)) {
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      logger.warn('the player already play a game');
+      return;
+    }
+
+    yield players[0].destroy();
+
+    this.status = 200;
+    websocket.send(eventId, { type: 'deletePlayer', playerId: parseInt(id, 10) });
   }));
 
   app.use(route.post('/api/events/:id/games', function* createGame(id) {

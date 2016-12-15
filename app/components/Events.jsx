@@ -82,7 +82,7 @@ class Events extends React.Component {
     return (
       <Panel
         key={event.id}
-        header={event.name}
+        header={event.name || '(noname)'}
         collapsible
         defaultExpanded={false}
       >
