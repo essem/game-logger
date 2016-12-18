@@ -4,6 +4,7 @@ const app = (state = {}, action) => {
   switch (action.type) {
     case 'LOGIN':
       {
+        localStorage.setItem('token', action.token);
         const decoded = jwtDecode(action.token);
         return {
           ...state,
@@ -14,6 +15,7 @@ const app = (state = {}, action) => {
       }
 
     case 'LOGOUT':
+      localStorage.removeItem('token');
       return {
         ...state,
         token: null,

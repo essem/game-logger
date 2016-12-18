@@ -26,7 +26,6 @@ class Login extends React.Component {
           type: 'LOGIN',
           token: res.token,
         });
-        localStorage.setItem('token', res.token);
         browserHistory.push('/');
       } else {
         this.setState({ loginMessage: 'Failed to login' });
