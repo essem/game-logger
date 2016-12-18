@@ -3,8 +3,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
-import { Router, Route, IndexRoute, browserHistory } from 'react-router';
+import { Router, Route, IndexRoute, useRouterHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
+
+// https://github.com/ReactTraining/react-router/issues/4006
+import createBrowserHistory from 'react-router/node_modules/history/lib/createBrowserHistory';
+
 import appReducer from './reducers/app';
 import eventsReducer from './reducers/events';
 import eventReducer from './reducers/event';
@@ -32,7 +36,9 @@ const store = createStore(
   undefined,
   window.devToolsExtension ? window.devToolsExtension() : undefined
 );
-
+const browserHistory = useRouterHistory(createBrowserHistory)({
+  basename: SUB_URI,
+});
 const history = syncHistoryWithStore(browserHistory, store);
 
 ReactDOM.render((

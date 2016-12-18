@@ -17,7 +17,7 @@ function request(path, method, body) {
     options.body = JSON.stringify(body);
   }
 
-  return fetch(`${API_HOST}${path}`, options)
+  return fetch(`${API_HOST}${SUB_URI}${path}`, options)
   .then(res => res.json());
 }
 

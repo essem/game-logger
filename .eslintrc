@@ -16,5 +16,6 @@
   "globals": {
     "API_HOST": false,
     "WS_HOST": false,
+    "SUB_URI": false,
   }
 }

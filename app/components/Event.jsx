@@ -1,13 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Badge, ButtonGroup, Button, ButtonToolbar } from 'react-bootstrap';
-import { browserHistory, Link } from 'react-router';
+import { withRouter, Link } from 'react-router';
 import Confirm from './Confirm.jsx';
 import http from '../http';
 
 class Event extends React.Component {
   static propTypes = {
     dispatch: React.PropTypes.func,
+    router: React.PropTypes.object,
     admin: React.PropTypes.bool,
     event: React.PropTypes.object,
     children: React.PropTypes.element,
@@ -55,7 +56,7 @@ class Event extends React.Component {
     if (wsHost === '') {
       const loc = window.location;
       const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
-      wsHost = `${protocol}//${loc.host}`;
+      wsHost = `${protocol}//${loc.host}${SUB_URI}/`;
     }
 
     this.socket = new WebSocket(wsHost, 'watch');
@@ -153,7 +154,7 @@ class Event extends React.Component {
         type: 'DELETE_EVENT',
         id: res.id,
       });
-      browserHistory.push('/events');
+      this.props.router.push('/events');
     })
     .catch(() => {});
   }
@@ -310,4 +311,4 @@ const mapStateToProps = state => ({
   event: state.event,
 });
 
-export default connect(mapStateToProps)(Event);
+export default withRouter(connect(mapStateToProps)(Event));

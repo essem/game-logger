@@ -1,13 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button } from 'react-bootstrap';
-import { browserHistory, Link } from 'react-router';
+import { withRouter, Link } from 'react-router';
 import NewEvent from './NewEvent.jsx';
 import http from '../http';
 
 class Events extends React.Component {
   static propTypes = {
     dispatch: React.PropTypes.func,
+    router: React.PropTypes.object,
     events: React.PropTypes.array,
   };
 
@@ -43,7 +44,7 @@ class Events extends React.Component {
         type: 'CREATE_EVENT',
         event: res,
       });
-      browserHistory.push(`/events/${res.id}/players`);
+      this.props.router.push(`/events/${res.id}/players`);
     })
     .catch(() => {});
   }
@@ -127,4 +128,4 @@ const mapStateToProps = state => ({
   events: state.events,
 });
 
-export default connect(mapStateToProps)(Events);
+export default withRouter(connect(mapStateToProps)(Events));

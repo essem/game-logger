@@ -1,14 +1,15 @@
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Grid, Row, Col, Panel, Button, FormGroup, ControlLabel,
   Form, FormControl, Alert } from 'react-bootstrap';
-import { browserHistory } from 'react-router';
 import http from '../http';
 
 class Login extends React.Component {
   static propTypes = {
     dispatch: React.PropTypes.func,
+    router: React.PropTypes.object,
   };
 
   state = {
@@ -26,7 +27,7 @@ class Login extends React.Component {
           type: 'LOGIN',
           token: res.token,
         });
-        browserHistory.push('/');
+        this.props.router.push('/');
       } else {
         this.setState({ loginMessage: 'Failed to login' });
       }
@@ -89,4 +90,4 @@ const mapStateToProps = state => ({
   account: state.app.account,
 });
 
-export default connect(mapStateToProps)(Login);
+export default withRouter(connect(mapStateToProps)(Login));

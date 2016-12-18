@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { browserHistory, Link } from 'react-router';
+import { withRouter, Link } from 'react-router';
 import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
@@ -8,6 +8,7 @@ class Topbar extends React.Component {
   static propTypes = {
     children: React.PropTypes.element,
     dispatch: React.PropTypes.func,
+    router: React.PropTypes.object,
     account: React.PropTypes.string,
   };
 
@@ -26,7 +27,7 @@ class Topbar extends React.Component {
     this.props.dispatch({
       type: 'LOGOUT',
     });
-    browserHistory.push('/');
+    this.props.router.push('/');
   };
 
   renderLogin() {
@@ -78,4 +79,4 @@ const mapStateToProps = state => ({
   account: state.app.account,
 });
 
-export default connect(mapStateToProps)(Topbar);
+export default withRouter(connect(mapStateToProps)(Topbar));

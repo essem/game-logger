@@ -26,6 +26,7 @@ module.exports = {
       },
       API_HOST: JSON.stringify(`http://localhost:${config.port}`),
       WS_HOST: JSON.stringify(`ws://localhost:${config.port}`),
+      SUB_URI: JSON.stringify(''),
     }),
     new webpack.HotModuleReplacementPlugin(),
     new HtmlwebpackPlugin({

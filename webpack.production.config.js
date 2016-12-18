@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlwebpackPlugin = require('html-webpack-plugin');
+const config = require('config');
 
 module.exports = {
   devtool: 'cheap-module-source-map',
@@ -8,7 +9,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
-    publicPath: '/',
+    publicPath: `${config.subUri}/`,
   },
   plugins: [
     new webpack.optimize.OccurenceOrderPlugin(),
@@ -18,6 +19,7 @@ module.exports = {
       },
       API_HOST: JSON.stringify(''),
       WS_HOST: JSON.stringify(''),
+      SUB_URI: JSON.stringify(config.subUri),
     }),
     new webpack.optimize.UglifyJsPlugin({
       compressor: {
