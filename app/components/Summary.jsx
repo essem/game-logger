@@ -13,7 +13,7 @@ class Summary extends React.Component {
 
     let players = event.players.map(p => ({
       id: p.id,
-      name: p.name,
+      name: p.user.name,
       win: 0,
       lose: 0,
     }));
@@ -76,7 +76,7 @@ class Summary extends React.Component {
         <td style={{ textAlign: 'right', paddingRight: '10px' }}>
           <b>{lose}</b> L
         </td>
-        <td>vs. {other.name}</td>
+        <td>vs. {other.user.name}</td>
       </tr>
     );
   }
@@ -87,7 +87,7 @@ class Summary extends React.Component {
     return (
       <blockquote key={player.id}>
         <div style={{ marginBottom: '10px' }}>
-          {player.name}
+          {player.user.name}
         </div>
         <table>
           <tbody>

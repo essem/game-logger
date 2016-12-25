@@ -54,8 +54,8 @@ class Games extends React.Component {
 
   renderGameTitle(game) {
     const players = this.props.players;
-    const winners = game.winners.map(id => players.find(player => player.id === id).name);
-    const losers = game.losers.map(id => players.find(player => player.id === id).name);
+    const winners = game.winners.map(id => players.find(player => player.id === id).user.name);
+    const losers = game.losers.map(id => players.find(player => player.id === id).user.name);
 
     return `${winners.join(', ')} vs. ${losers.join(', ')}`;
   }

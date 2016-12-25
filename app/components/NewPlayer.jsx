@@ -1,40 +1,74 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Button, Modal, Form, FormGroup, FormControl } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import { Button, Modal, Row, Col } from 'react-bootstrap';
+import _ from 'lodash';
+import http from '../http';
 
-export default class NewPlayer extends React.Component {
+class NewPlayer extends React.Component {
   static propTypes = {
     dispatch: React.PropTypes.func,
+    players: React.PropTypes.array,
     onCreate: React.PropTypes.func,
     onClose: React.PropTypes.func,
   };
 
-  componentDidMount() {
-    const e = ReactDOM.findDOMNode(this.addPlayerText);
-    e.focus();
+  state = {
+    users: [],
+    selectedUsers: new Set(),
   }
+
+  componentDidMount() {
+    http.get('/api/users')
+    .then(users => {
+      this.setState({ users });
+    })
+    .catch(() => {});
+  }
+
+  handleClickUser = userId => {
+    const selectedUsers = new Set(this.state.selectedUsers);
+    if (this.state.selectedUsers.has(userId)) {
+      selectedUsers.delete(userId);
+    } else {
+      selectedUsers.add(userId);
+    }
+    this.setState({ selectedUsers });
+  };
 
   handleCreate = e => {
     e.preventDefault();
-    const input = ReactDOM.findDOMNode(this.addPlayerText);
-    this.props.onCreate(input.value);
+    this.props.onCreate(Array.from(this.state.selectedUsers));
   };
 
+  renderUser(user) {
+    return (
+      <Col key={user.id} xs={4}>
+        <Button
+          style={{ width: '100%', height: '50px', marginBottom: '10px' }}
+          active={this.state.selectedUsers.has(user.id)}
+          onClick={() => this.handleClickUser(user.id)}
+        >
+          {user.name}
+        </Button>
+      </Col>
+    );
+  }
+
   render() {
+    let users = this.state.users;
+    users = users.filter(u => !_.some(this.props.players, p => p.user.id === u.id));
+    users = users.sort((a, b) => a.name.localeCompare(b.name));
+
     return (
       <Modal show onHide={this.props.onClose}>
         <Modal.Header closeButton>
           <Modal.Title>New Player</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={this.handleCreate}>
-            <FormGroup>
-              <FormControl
-                ref={e => { this.addPlayerText = e; }}
-                type="text"
-              />
-            </FormGroup>
-          </Form>
+          <Row>
+          {users.map(user => this.renderUser(user))}
+          </Row>
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -53,3 +87,9 @@ export default class NewPlayer extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  players: state.event.players,
+});
+
+export default connect(mapStateToProps)(NewPlayer);

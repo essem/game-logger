@@ -94,10 +94,10 @@ class Event extends React.Component {
           id: message.gameId,
         });
         break;
-      case 'createPlayer':
+      case 'createPlayers':
         this.props.dispatch({
-          type: 'CREATE_PLAYER',
-          player: message.player,
+          type: 'CREATE_PLAYERS',
+          players: message.players,
         });
         break;
       case 'deletePlayer':

@@ -3,9 +3,21 @@
 const route = require('koa-route');
 const config = require('config');
 const jwt = require('jsonwebtoken');
+const models = require('./models');
 
-function authenticate(account, password) {
-  return account === config.auth.account && password === config.auth.password;
+function* authenticate(account, password) {
+  const user = yield models.user.findOne({
+    where: {
+      $and: [
+        { name: account },
+        models.sequelize.where(
+          models.sequelize.fn('crypt', password, models.sequelize.col('password')),
+          models.sequelize.col('password')
+        ),
+      ],
+    },
+  });
+  return user;
 }
 
 function init(app) {
@@ -23,15 +35,16 @@ function init(app) {
 
   app.use(route.post('/api/login', function* login() {
     const req = this.request.body;
-    if (!authenticate(req.account, req.password)) {
+    const user = yield authenticate(req.account, req.password);
+    if (!user) {
       this.body = JSON.stringify({
         token: null,
       });
       return;
     }
 
-    const user = { account: req.account, admin: true };
-    const token = jwt.sign(user, config.auth.secret, {
+    const info = { account: user.name, admin: user.admin };
+    const token = jwt.sign(info, config.auth.secret, {
       expiresIn: '24h',
     });
 

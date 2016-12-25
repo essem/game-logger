@@ -5,9 +5,7 @@
   "serveStatic": false,
   "cors": true,
   "auth": {
-    "secret": "some secret hurr",
-    "account": "tj",
-    "password": "tobi"
+    "secret": "some secret hurr"
   },
   "database": {
     "host": "localhost",

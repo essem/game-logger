@@ -56,8 +56,8 @@ class NewGame extends React.Component {
 
     const { players } = this.props;
 
-    const winners = this.state.winners.map(winner => players.find(p => p.id === winner).name);
-    const losers = this.state.losers.map(loser => players.find(p => p.id === loser).name);
+    const winners = this.state.winners.map(winner => players.find(p => p.id === winner).user.name);
+    const losers = this.state.losers.map(loser => players.find(p => p.id === loser).user.name);
 
     return (
       <Well>
@@ -75,7 +75,7 @@ class NewGame extends React.Component {
           style={{ width: '100%', height: '50px', marginBottom: '10px' }}
           onClick={() => this.handleClickPlayer(player.id)}
         >
-          {player.name}
+          {player.user.name}
         </Button>
       </Col>
     );

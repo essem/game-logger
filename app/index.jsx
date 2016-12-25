@@ -12,6 +12,7 @@ import createBrowserHistory from 'react-router/node_modules/history/lib/createBr
 import appReducer from './reducers/app';
 import eventsReducer from './reducers/events';
 import eventReducer from './reducers/event';
+import usersReducer from './reducers/users';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import './public/app.css';
 import Topbar from './components/Topbar.jsx';
@@ -22,6 +23,7 @@ import Event from './components/Event.jsx';
 import Players from './components/Players.jsx';
 import Games from './components/Games.jsx';
 import Summary from './components/Summary.jsx';
+import Users from './components/Users.jsx';
 
 const app = document.createElement('div');
 document.body.appendChild(app);
@@ -31,6 +33,7 @@ const store = createStore(
     app: appReducer,
     events: eventsReducer,
     event: eventReducer,
+    users: usersReducer,
     routing: routerReducer,
   }),
   undefined,
@@ -55,6 +58,7 @@ ReactDOM.render((
             <Route path="summary" component={Summary} />
           </Route>
         </Route>
+        <Route path="Users" component={Users} />
       </Route>
     </Router>
   </Provider>

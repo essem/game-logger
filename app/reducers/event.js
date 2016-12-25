@@ -3,10 +3,10 @@ const event = (state = null, action) => {
     case 'INIT_EVENT':
       return action.event;
 
-    case 'CREATE_PLAYER':
+    case 'CREATE_PLAYERS':
       return {
         ...state,
-        players: [...state.players, action.player],
+        players: [...state.players, ...action.players],
       };
 
     case 'DELETE_PLAYER':

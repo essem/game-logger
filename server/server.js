@@ -11,6 +11,7 @@ const ws = require('./websocket');
 const models = require('./models');
 const auth = require('./auth');
 const events = require('./events');
+const users = require('./users');
 
 function createKoa(hostname, port) {
   const app = koa();
@@ -30,6 +31,7 @@ function createKoa(hostname, port) {
 
   auth(app);
   events(app);
+  users(app);
 
   if (config.get('serveStatic')) {
     app.use(require('koa-static')('dist')); // eslint-disable-line global-require

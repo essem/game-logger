@@ -25,7 +25,14 @@ function init(app) {
       where: { id },
     });
     const ret = event.toJSON();
-    ret.players = yield event.getPlayers();
+    const players = yield event.getPlayers();
+    ret.players = [];
+    for (const player of players) {
+      const p = player.toJSON();
+      const user = yield player.getUser();
+      p.user = user.toJSON();
+      ret.players.push(p);
+    }
     const games = yield event.getGames();
     ret.games = [];
     for (const game of games) {
@@ -116,10 +123,17 @@ function init(app) {
       this.status = 400;
       return;
     }
-    const newPlayer = yield models.player.create({ eventId: id, name: req.name });
+    const players = [];
+    for (const userId of req.users) {
+      const player = yield models.player.create({ eventId: id, userId });
+      const p = player.toJSON();
+      const user = yield player.getUser();
+      p.user = user.toJSON();
+      players.push(p);
+    }
 
     this.status = 200;
-    websocket.send(id, { type: 'createPlayer', player: newPlayer });
+    websocket.send(id, { type: 'createPlayers', players });
   }));
 
   app.use(route.delete('/api/events/:eventId/players/:id', function* deleteGame(eventId, id) {

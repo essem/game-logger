@@ -101,7 +101,7 @@ class Events extends React.Component {
 
     return (
       <Grid>
-        <Row>
+        <Row style={{ marginBottom: '20px' }}>
           <Col xs={12}>
             <Button
               bsStyle="primary"
@@ -113,7 +113,19 @@ class Events extends React.Component {
             {this.renderNewEventModal()}
           </Col>
         </Row>
-        <br />
+        <Row>
+          <Col
+            xs={12}
+            style={{
+              textAlign: 'center',
+              marginBottom: '10px',
+              fontSize: '12px',
+              fontStyle: 'italic',
+            }}
+          >
+          Total {events.length} events
+          </Col>
+        </Row>
         <Row>
           <Col xs={12}>
           {events.map(event => this.renderEvent(event))}

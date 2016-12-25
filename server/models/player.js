@@ -1,8 +1,13 @@
 'use strict';
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize) => {
   const player = sequelize.define('player', {
-    name: DataTypes.STRING,
+  }, {
+    classMethods: {
+      associate: models => {
+        player.belongsTo(models.user);
+      },
+    },
   });
 
   return player;

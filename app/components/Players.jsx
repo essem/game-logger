@@ -19,14 +19,10 @@ class Players extends React.Component {
     this.setState({ showNewPlayerModal: true });
   }
 
-  handleCreatePlayer = name => {
-    if (!name.trim()) {
-      return;
-    }
-
+  handleCreatePlayer = users => {
     this.setState({ showNewPlayerModal: false });
 
-    http.post(`/api/events/${this.props.event.id}/players`, { name })
+    http.post(`/api/events/${this.props.event.id}/players`, { users })
     .catch(() => {});
   }
 
@@ -100,7 +96,7 @@ class Players extends React.Component {
       <Panel
         key={player.id}
       >
-        {player.name}
+        {player.user.name}
         <span className="pull-right">
           {win} W {lose} L
           {deleteButton}
