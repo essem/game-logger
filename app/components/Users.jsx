@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button } from 'react-bootstrap';
-import NewUser from './NewUser.jsx';
+import NewUser from './NewUser';
 import http from '../http';
 
 class Users extends React.Component {
@@ -17,7 +17,7 @@ class Users extends React.Component {
 
   componentDidMount() {
     http.get('/api/users')
-    .then(users => {
+    .then((users) => {
       this.props.dispatch({
         type: 'INIT_USERS',
         users,
@@ -38,7 +38,7 @@ class Users extends React.Component {
     this.setState({ showNewUserModal: false });
 
     http.post('/api/users', { name, password })
-    .then(res => {
+    .then((res) => {
       this.props.dispatch({
         type: 'CREATE_USER',
         user: res,
@@ -106,11 +106,11 @@ class Users extends React.Component {
         </Row>
         <Row>
           <Col xs={12}>
-          {users.map(user => (
-            <Panel key={user.id}>
-              {user.name}
-            </Panel>
-          ))}
+            {users.map(user => (
+              <Panel key={user.id}>
+                {user.name}
+              </Panel>
+            ))}
           </Col>
         </Row>
       </Grid>

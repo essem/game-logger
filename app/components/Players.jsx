@@ -1,12 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button, Glyphicon } from 'react-bootstrap';
-import NewPlayer from './NewPlayer.jsx';
+import NewPlayer from './NewPlayer';
 import http from '../http';
 
 class Players extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
     event: React.PropTypes.object,
     players: React.PropTypes.array,
   };
@@ -19,7 +18,7 @@ class Players extends React.Component {
     this.setState({ showNewPlayerModal: true });
   }
 
-  handleCreatePlayer = users => {
+  handleCreatePlayer = (users) => {
     this.setState({ showNewPlayerModal: false });
 
     http.post(`/api/events/${this.props.event.id}/players`, { users })
@@ -30,7 +29,7 @@ class Players extends React.Component {
     this.setState({ showNewPlayerModal: false });
   }
 
-  handleDeletePlayer = playerId => {
+  handleDeletePlayer = (playerId) => {
     http.delete(`/api/events/${this.props.event.id}/players/${playerId}`)
     .catch(() => {});
   }
@@ -81,14 +80,22 @@ class Players extends React.Component {
 
     let deleteButton = '';
     if (!event.finished && win === 0 && lose === 0) {
+      const style = {
+        color: '#ccc',
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        marginLeft: '15px',
+      };
+
       deleteButton = (
-        <span
+        <button
           className="pull-right"
-          style={{ color: '#ccc', marginLeft: '15px' }}
+          style={style}
           onClick={() => this.handleDeletePlayer(player.id)}
         >
           <Glyphicon glyph="remove" />
-        </span>
+        </button>
       );
     }
 
@@ -126,7 +133,7 @@ class Players extends React.Component {
         </Row>
         <Row>
           <Col xs={12}>
-          {players.map(player => this.renderPlayer(player))}
+            {players.map(player => this.renderPlayer(player))}
           </Col>
         </Row>
       </Grid>

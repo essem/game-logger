@@ -35,6 +35,9 @@ module.exports = {
       template: './app/public/index.ejs',
     }),
   ],
+  resolve: {
+    extensions: ['', '.js', '.jsx'],
+  },
   module: {
     loaders: [
       {

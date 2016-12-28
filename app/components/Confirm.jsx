@@ -17,7 +17,7 @@ export default class Confirm extends React.Component {
           <Modal.Title>Confirm</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        {this.props.message}
+          {this.props.message}
         </Modal.Body>
         <Modal.Footer>
           <Button

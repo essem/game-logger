@@ -16,12 +16,12 @@ class Login extends React.Component {
     loginMessage: null,
   };
 
-  handleLogin = e => {
+  handleLogin = (e) => {
     e.preventDefault();
     const account = ReactDOM.findDOMNode(this.account).value;
     const password = ReactDOM.findDOMNode(this.password).value;
     http.post('/api/login', { account, password })
-    .then(res => {
+    .then((res) => {
       if (res.token) {
         this.props.dispatch({
           type: 'LOGIN',
@@ -60,14 +60,14 @@ class Login extends React.Component {
                   <FormControl
                     type="text"
                     autoFocus
-                    ref={e => { this.account = e; }}
+                    ref={(e) => { this.account = e; }}
                   />
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel>Password</ControlLabel>
                   <FormControl
                     type="password"
-                    ref={e => { this.password = e; }}
+                    ref={(e) => { this.password = e; }}
                   />
                 </FormGroup>
                 <Button

@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Badge, ButtonGroup, Button, ButtonToolbar } from 'react-bootstrap';
 import { withRouter, Link } from 'react-router';
-import Confirm from './Confirm.jsx';
+import Confirm from './Confirm';
 import http from '../http';
 
 class Event extends React.Component {
@@ -24,7 +24,7 @@ class Event extends React.Component {
   componentDidMount() {
     const eventId = parseInt(this.props.params.id, 10);
     http.get(`/api/events/${eventId}`)
-    .then(event => {
+    .then((event) => {
       this.props.dispatch({
         type: 'INIT_EVENT',
         event,
@@ -149,7 +149,7 @@ class Event extends React.Component {
     this.setState({ showDeleteConfirm: false });
 
     http.delete(`/api/events/${this.props.event.id}`)
-    .then(res => {
+    .then((res) => {
       this.props.dispatch({
         type: 'DELETE_EVENT',
         id: res.id,

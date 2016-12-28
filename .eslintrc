@@ -1,21 +1,26 @@
 {
-  "parser": "babel-eslint",
+  "parser": "babel-eslint", // TODO: Wan to move this config to app/.eslintrc, but ATOM does not work
   "extends": [
     "airbnb",
   ],
-  "env": {
-    "browser": true,
-  },
   "rules": {
     "strict": "off",
-    "react/prefer-stateless-function": "off", // does not support hmr
-    "react/no-find-dom-node": "off",
     "import/no-extraneous-dependencies": "off",
-    "require-yield": "off",
+    'no-restricted-syntax': [
+      'error',
+      'ForInStatement',
+      //'ForOfStatement',
+      'LabeledStatement',
+      'WithStatement',
+    ],
+    "comma-dangle": [
+      "error", {
+        "arrays": "always-multiline",
+        "objects": "always-multiline",
+        "imports": "always-multiline",
+        "exports": "always-multiline",
+        "functions": "never",
+      },
+    ],
   },
-  "globals": {
-    "API_HOST": false,
-    "WS_HOST": false,
-    "SUB_URI": false,
-  }
 }

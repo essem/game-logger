@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import { Button, Modal, Row, Col } from 'react-bootstrap';
 import _ from 'lodash';
@@ -7,7 +6,6 @@ import http from '../http';
 
 class NewPlayer extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
     players: React.PropTypes.array,
     onCreate: React.PropTypes.func,
     onClose: React.PropTypes.func,
@@ -20,13 +18,13 @@ class NewPlayer extends React.Component {
 
   componentDidMount() {
     http.get('/api/users')
-    .then(users => {
+    .then((users) => {
       this.setState({ users });
     })
     .catch(() => {});
   }
 
-  handleClickUser = userId => {
+  handleClickUser = (userId) => {
     const selectedUsers = new Set(this.state.selectedUsers);
     if (this.state.selectedUsers.has(userId)) {
       selectedUsers.delete(userId);
@@ -36,7 +34,7 @@ class NewPlayer extends React.Component {
     this.setState({ selectedUsers });
   };
 
-  handleCreate = e => {
+  handleCreate = (e) => {
     e.preventDefault();
     this.props.onCreate(Array.from(this.state.selectedUsers));
   };
@@ -67,7 +65,7 @@ class NewPlayer extends React.Component {
         </Modal.Header>
         <Modal.Body>
           <Row>
-          {users.map(user => this.renderUser(user))}
+            {users.map(user => this.renderUser(user))}
           </Row>
         </Modal.Body>
         <Modal.Footer>

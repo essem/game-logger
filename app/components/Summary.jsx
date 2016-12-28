@@ -4,7 +4,6 @@ import { Grid, Row, Col } from 'react-bootstrap';
 
 class Summary extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
     event: React.PropTypes.object,
   };
 
@@ -35,17 +34,17 @@ class Summary extends React.Component {
         </div>
         <table>
           <tbody>
-          {players.map(p => (
-            <tr key={p.id}>
-              <td style={{ textAlign: 'right', paddingRight: '10px' }}>
-                <b>{p.win}</b> W
-              </td>
-              <td style={{ textAlign: 'right', paddingRight: '10px' }}>
-                <b>{p.lose}</b> L
-              </td>
-              <td>{p.name}</td>
-            </tr>
-          ))}
+            {players.map(p => (
+              <tr key={p.id}>
+                <td style={{ textAlign: 'right', paddingRight: '10px' }}>
+                  <b>{p.win}</b> W
+                </td>
+                <td style={{ textAlign: 'right', paddingRight: '10px' }}>
+                  <b>{p.lose}</b> L
+                </td>
+                <td>{p.name}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </blockquote>
@@ -60,11 +59,11 @@ class Summary extends React.Component {
     for (const game of event.games) {
       if (game.winners.indexOf(player.id) !== -1
         && game.losers.indexOf(other.id) !== -1) {
-        ++win;
+        win += 1;
       }
       if (game.losers.indexOf(player.id) !== -1
         && game.winners.indexOf(other.id) !== -1) {
-        ++lose;
+        lose += 1;
       }
     }
 
@@ -91,7 +90,7 @@ class Summary extends React.Component {
         </div>
         <table>
           <tbody>
-          {others.map(other => this.renderAgainstOther(player, other))}
+            {others.map(other => this.renderAgainstOther(player, other))}
           </tbody>
         </table>
       </blockquote>

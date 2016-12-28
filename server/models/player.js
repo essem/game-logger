@@ -4,7 +4,7 @@ module.exports = (sequelize) => {
   const player = sequelize.define('player', {
   }, {
     classMethods: {
-      associate: models => {
+      associate: (models) => {
         player.belongsTo(models.user);
       },
     },

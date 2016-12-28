@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button } from 'react-bootstrap';
 import { withRouter, Link } from 'react-router';
-import NewEvent from './NewEvent.jsx';
+import NewEvent from './NewEvent';
 import http from '../http';
 
 class Events extends React.Component {
@@ -12,13 +12,43 @@ class Events extends React.Component {
     events: React.PropTypes.array,
   };
 
+  static renderSummary(event) {
+    if (!event.finished) {
+      return <span>Event is in progress...<br /></span>;
+    }
+
+    return event.summary.split('\n').map((item, i) => (
+      <span key={i}>
+        {item}
+        <br />
+      </span>
+    ));
+  }
+
+  static renderEvent(event) {
+    return (
+      <Panel
+        key={event.id}
+        header={event.name || '(noname)'}
+        collapsible
+        defaultExpanded={false}
+      >
+        {Events.renderSummary(event)}
+        <br />
+        <Link to={`/events/${event.id}/summary`} className="btn btn-default">
+          View
+        </Link>
+      </Panel>
+    );
+  }
+
   state = {
     showNewEventModal: false,
   };
 
   componentDidMount() {
     http.get('/api/events')
-    .then(events => {
+    .then((events) => {
       this.props.dispatch({
         type: 'INIT_EVENTS',
         events,
@@ -31,7 +61,7 @@ class Events extends React.Component {
     this.setState({ showNewEventModal: true });
   }
 
-  handleCreateEvent = name => {
+  handleCreateEvent = (name) => {
     if (!name.trim()) {
       return;
     }
@@ -39,7 +69,7 @@ class Events extends React.Component {
     this.setState({ showNewEventModal: false });
 
     http.post('/api/events', { name })
-    .then(res => {
+    .then((res) => {
       this.props.dispatch({
         type: 'CREATE_EVENT',
         event: res,
@@ -63,36 +93,6 @@ class Events extends React.Component {
         onCreate={this.handleCreateEvent}
         onClose={this.handleCloseNewEventModal}
       />
-    );
-  }
-
-  renderSummary(event) {
-    if (!event.finished) {
-      return <span>Event is in progress...<br /></span>;
-    }
-
-    return event.summary.split('\n').map((item, i) => (
-      <span key={i}>
-        {item}
-        <br />
-      </span>
-    ));
-  }
-
-  renderEvent(event) {
-    return (
-      <Panel
-        key={event.id}
-        header={event.name || '(noname)'}
-        collapsible
-        defaultExpanded={false}
-      >
-        {this.renderSummary(event)}
-        <br />
-        <Link to={`/events/${event.id}/summary`} className="btn btn-default">
-          View
-        </Link>
-      </Panel>
     );
   }
 
@@ -128,7 +128,7 @@ class Events extends React.Component {
         </Row>
         <Row>
           <Col xs={12}>
-          {events.map(event => this.renderEvent(event))}
+            {events.map(event => Events.renderEvent(event))}
           </Col>
         </Row>
       </Grid>

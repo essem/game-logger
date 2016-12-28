@@ -4,7 +4,6 @@ import { Well, Row, Col, Button, Modal } from 'react-bootstrap';
 
 class NewGame extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
     players: React.PropTypes.array,
     team: React.PropTypes.bool,
     onCreate: React.PropTypes.func,
@@ -17,7 +16,7 @@ class NewGame extends React.Component {
     losers: [],
   }
 
-  handleClickPlayer = playerId => {
+  handleClickPlayer = (playerId) => {
     if (!this.props.team) {
       if (this.state.step === 'winner') {
         const winners = this.state.winners.concat(playerId);
@@ -111,7 +110,7 @@ class NewGame extends React.Component {
             </Col>
           </Row>
           <Row>
-          {players.map(player => this.renderPlayer(player))}
+            {players.map(player => this.renderPlayer(player))}
           </Row>
         </Modal.Body>
         <Modal.Footer>

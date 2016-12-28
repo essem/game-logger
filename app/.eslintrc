@@ -1,0 +1,16 @@
+{
+  "env": {
+    "browser": true,
+  },
+  "rules": {
+    "strict": "error",
+    "react/forbid-prop-types": "off",
+    "react/no-find-dom-node": "off",
+    "react/prefer-stateless-function": "off", // does not support hmr
+  },
+  "globals": {
+    "API_HOST": false,
+    "WS_HOST": false,
+    "SUB_URI": false,
+  }
+}

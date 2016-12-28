@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     summary: DataTypes.STRING,
   }, {
     classMethods: {
-      associate: models => {
+      associate: (models) => {
         event.hasMany(models.player, { onDelete: 'cascade', hooks: true });
         event.hasMany(models.game, { onDelete: 'cascade', hooks: true });
       },

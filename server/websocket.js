@@ -56,14 +56,14 @@ function createServer(httpServer) {
     autoAcceptConnections: false,
   });
 
-  wsServer.on('request', request => {
+  wsServer.on('request', (request) => {
     try {
       // TODO: check origin
 
       const socket = request.accept('watch', request.origin);
       logger.info(`websocket:${socket.remoteAddress}:accept`);
 
-      socket.on('message', message => {
+      socket.on('message', (message) => {
         if (message.type !== 'utf8') {
           logger.warn(`websocket: invalid message type ${message.type}`);
           socket.drop();

@@ -2,13 +2,12 @@ import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button, Badge, Glyphicon } from 'react-bootstrap';
-import NewGame from './NewGame.jsx';
-import Confirm from './Confirm.jsx';
+import NewGame from './NewGame';
+import Confirm from './Confirm';
 import http from '../http';
 
 class Games extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
     event: React.PropTypes.object,
     players: React.PropTypes.array,
     games: React.PropTypes.array,
@@ -19,7 +18,7 @@ class Games extends React.Component {
     showDeleteConfirm: false,
   };
 
-  handleNewGame = options => {
+  handleNewGame = (options) => {
     this.setState({ showNewGameModal: { show: true, ...options } });
   }
 
@@ -35,7 +34,7 @@ class Games extends React.Component {
     this.setState({ showNewGameModal: { show: false } });
   }
 
-  handleDelete = gameId => {
+  handleDelete = (gameId) => {
     this.setState({ showDeleteConfirm: true, deleteGameId: gameId });
   };
 
@@ -128,14 +127,21 @@ class Games extends React.Component {
 
     let deleteButton = '';
     if (!event.finished) {
+      const style = {
+        color: '#ccc',
+        background: 'none',
+        border: 'none',
+        padding: 0,
+      };
+
       deleteButton = (
-        <span
+        <button
           className="pull-right"
-          style={{ color: '#ccc' }}
+          style={style}
           onClick={() => this.handleDelete(game.id)}
         >
           <Glyphicon glyph="remove" />
-        </span>
+        </button>
       );
     }
 

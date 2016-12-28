@@ -1,10 +1,10 @@
 'use strict';
 
-module.exports = sequelize => {
+module.exports = (sequelize) => {
   const winner = sequelize.define('winner', {
   }, {
     classMethods: {
-      associate: models => {
+      associate: (models) => {
         winner.belongsTo(models.player);
       },
     },

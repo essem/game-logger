@@ -5,7 +5,6 @@ import moment from 'moment';
 
 export default class NewEvent extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
     onCreate: React.PropTypes.func,
     onClose: React.PropTypes.func,
   };
@@ -17,7 +16,7 @@ export default class NewEvent extends React.Component {
     input.focus();
   }
 
-  handleCreate = e => {
+  handleCreate = (e) => {
     e.preventDefault();
     const input = ReactDOM.findDOMNode(this.addEventText);
     this.props.onCreate(input.value);
@@ -33,7 +32,7 @@ export default class NewEvent extends React.Component {
           <Form onSubmit={this.handleCreate}>
             <FormGroup>
               <FormControl
-                ref={e => { this.addEventText = e; }}
+                ref={(e) => { this.addEventText = e; }}
                 type="text"
               />
             </FormGroup>
