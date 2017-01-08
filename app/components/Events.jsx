@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Grid, Row, Col, Panel, Button } from 'react-bootstrap';
+import { Grid, Row, Col, Panel, Button, Badge } from 'react-bootstrap';
 import { withRouter, Link } from 'react-router';
 import NewEvent from './NewEvent';
 import http from '../http';
@@ -26,10 +26,19 @@ class Events extends React.Component {
   }
 
   static renderEvent(event) {
+    const header = [];
+    if (event.name) {
+      header.push(<span key="name">{event.name}</span>);
+    } else {
+      header.push(<i key="name">noname</i>);
+    }
+    if (!event.finished) {
+      header.push(<Badge key="inProgress" style={{ backgroundColor: '#777' }} pullRight>in progress</Badge>);
+    }
     return (
       <Panel
         key={event.id}
-        header={event.name || '(noname)'}
+        header={header}
         collapsible
         defaultExpanded={false}
       >
