@@ -6,6 +6,7 @@ module.exports = (sequelize) => {
     classMethods: {
       associate: (models) => {
         winner.belongsTo(models.player);
+        winner.belongsTo(models.game);
       },
     },
   });

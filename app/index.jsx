@@ -13,6 +13,7 @@ import appReducer from './reducers/app';
 import eventsReducer from './reducers/events';
 import eventReducer from './reducers/event';
 import usersReducer from './reducers/users';
+import userReducer from './reducers/user';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import './public/app.css';
 import Topbar from './components/Topbar';
@@ -24,6 +25,7 @@ import Players from './components/Players';
 import Games from './components/Games';
 import Summary from './components/Summary';
 import Users from './components/Users';
+import User from './components/User';
 
 const app = document.createElement('div');
 document.body.appendChild(app);
@@ -34,6 +36,7 @@ const store = createStore(
     events: eventsReducer,
     event: eventReducer,
     users: usersReducer,
+    user: userReducer,
     routing: routerReducer,
   }),
   undefined,
@@ -58,7 +61,10 @@ ReactDOM.render((
             <Route path="summary" component={Summary} />
           </Route>
         </Route>
-        <Route path="Users" component={Users} />
+        <Route path="Users">
+          <IndexRoute component={Users} />
+          <Route path=":id" component={User} />
+        </Route>
       </Route>
     </Router>
   </Provider>

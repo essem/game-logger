@@ -43,7 +43,7 @@ function init(app) {
       g.losers = losers.map(l => l.playerId);
       ret.games.push(g);
     }
-    this.body = JSON.stringify(event);
+    this.body = JSON.stringify(ret);
   }));
 
   app.use(route.put('/api/events/:id', function* updateEvent(id) {

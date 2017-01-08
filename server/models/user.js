@@ -5,6 +5,12 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     password: DataTypes.STRING,
     admin: DataTypes.BOOLEAN,
+  }, {
+    classMethods: {
+      associate: (models) => {
+        user.hasMany(models.player);
+      },
+    },
   });
 
   return user;

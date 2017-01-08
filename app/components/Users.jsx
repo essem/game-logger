@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Grid, Row, Col, Panel, Button } from 'react-bootstrap';
+import { Grid, Row, Col, Button } from 'react-bootstrap';
+import { Link } from 'react-router';
 import NewUser from './NewUser';
 import http from '../http';
 
@@ -104,15 +105,19 @@ class Users extends React.Component {
           Total {users.length} users
           </Col>
         </Row>
-        <Row>
-          <Col xs={12}>
-            {users.map(user => (
-              <Panel key={user.id}>
+        {users.map(user => (
+          <Row key={user.id} style={{ marginBottom: '10px' }}>
+            <Col xs={12}>
+              <Link
+                to={`/users/${user.id}`}
+                className="btn btn-default"
+                style={{ width: '100%', textAlign: 'left' }}
+              >
                 {user.name}
-              </Panel>
-            ))}
-          </Col>
-        </Row>
+              </Link>
+            </Col>
+          </Row>
+        ))}
       </Grid>
     );
   }
