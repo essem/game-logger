@@ -58,7 +58,8 @@ class User extends React.Component {
   renderAgainstEachOther() {
     const user = this.props.user;
     const users = Object.keys(user.users).map(u => parseInt(u, 10));
-    const others = users.filter(u => u !== user.id);
+    let others = users.filter(u => u !== user.id);
+    others = _.sortBy(others, u => user.users[u]);
     return (
       <blockquote>
         <div style={{ marginBottom: '10px' }}>
@@ -79,7 +80,7 @@ class User extends React.Component {
     const lose = event.games.reduce((n, g) => n + _.includes(g.losers, user.id), 0);
     const style = { paddingRight: '10px' };
     return (
-      <tr>
+      <tr key={event.id}>
         <td style={style}>
           <Link to={`/events/${event.id}/summary`}>{event.name}</Link>
         </td>

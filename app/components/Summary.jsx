@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col } from 'react-bootstrap';
+import _ from 'lodash';
 
 class Summary extends React.Component {
   static propTypes = {
@@ -82,7 +83,8 @@ class Summary extends React.Component {
 
   renderAgainstEachOther(player) {
     const event = this.props.event;
-    const others = event.players.filter(other => other.id !== player.id);
+    let others = event.players.filter(other => other.id !== player.id);
+    others = _.sortBy(others, p => p.user.name);
     return (
       <blockquote key={player.id}>
         <div style={{ marginBottom: '10px' }}>

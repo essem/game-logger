@@ -29,6 +29,29 @@ function init(app) {
 
   app.use(route.get('/api/users/:id', function* showUser(id) {
     const user = yield models.user.findOne({
+      include: {
+        model: models.player,
+        include: {
+          model: models.event,
+          include: {
+            model: models.game,
+            include: [{
+              model: models.winner,
+              include: {
+                model: models.player,
+                include: models.user,
+              },
+            },
+            {
+              model: models.loser,
+              include: {
+                model: models.player,
+                include: models.user,
+              },
+            }],
+          },
+        },
+      },
       where: { id },
     });
     const out = {
@@ -44,25 +67,15 @@ function init(app) {
       out.users[u.id] = u.name;
     }
 
-    // TODO: make code scalable
-
     // Get all events that user played
-    const players = yield user.getPlayers();
-    for (const player of players) {
-      const event = yield player.getEvent();
-      const games = yield event.getGames();
+    for (const player of user.players) {
+      const outEvent = { id: player.event.id, name: player.event.name, games: [] };
 
-      const outEvent = { id: event.id, name: event.name, games: [] };
-
-      for (const game of games) {
-        const winners = yield game.getWinners();
-        if (winners.some(winner => winner.playerId === player.id)) {
+      for (const game of player.event.games) {
+        if (game.winners.some(winner => winner.playerId === player.id)) {
           outEvent.games.push(game);
-        } else {
-          const losers = yield game.getLosers();
-          if (losers.some(loser => loser.playerId === player.id)) {
-            outEvent.games.push(game);
-          }
+        } else if (game.losers.some(loser => loser.playerId === player.id)) {
+          outEvent.games.push(game);
         }
       }
       if (outEvent.games.length > 0) {
@@ -75,17 +88,11 @@ function init(app) {
       const outGames = [];
       for (const game of event.games) {
         const outGame = { winners: [], losers: [] };
-        const winners = yield game.getWinners();
-        for (const winner of winners) {
-          const player = yield winner.getPlayer();
-          const u = yield player.getUser();
-          outGame.winners.push(u.id);
+        for (const winner of game.winners) {
+          outGame.winners.push(winner.player.user.id);
         }
-        const losers = yield game.getLosers();
-        for (const loser of losers) {
-          const player = yield loser.getPlayer();
-          const u = yield player.getUser();
-          outGame.losers.push(u.id);
+        for (const loser of game.losers) {
+          outGame.losers.push(loser.player.user.id);
         }
         outGames.push(outGame);
       }
