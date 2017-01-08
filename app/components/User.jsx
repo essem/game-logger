@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel } from 'react-bootstrap';
-import { withRouter } from 'react-router';
+import { withRouter, Link } from 'react-router';
 import _ from 'lodash';
 import http from '../http';
 
@@ -32,9 +32,10 @@ class User extends React.Component {
 
   renderAgainstOther(other) {
     const user = this.props.user;
-    const win = user.games.reduce((n, g) =>
+    const games = _.flatMap(user.events, event => event.games);
+    const win = games.reduce((n, g) =>
       n + (_.includes(g.winners, user.id) && _.includes(g.losers, other)), 0);
-    const lose = user.games.reduce((n, g) =>
+    const lose = games.reduce((n, g) =>
       n + (_.includes(g.winners, other) && _.includes(g.losers, user.id)), 0);
 
     if (win === 0 && lose === 0) {
@@ -59,7 +60,7 @@ class User extends React.Component {
     const users = Object.keys(user.users).map(u => parseInt(u, 10));
     const others = users.filter(u => u !== user.id);
     return (
-      <blockquote key={user.id}>
+      <blockquote>
         <div style={{ marginBottom: '10px' }}>
           vs. Others
         </div>
@@ -72,14 +73,48 @@ class User extends React.Component {
     );
   }
 
+  renderEvent(event) {
+    const user = this.props.user;
+    const win = event.games.reduce((n, g) => n + _.includes(g.winners, user.id), 0);
+    const lose = event.games.reduce((n, g) => n + _.includes(g.losers, user.id), 0);
+    const style = { paddingRight: '10px' };
+    return (
+      <tr>
+        <td style={style}>
+          <Link to={`/events/${event.id}/summary`}>{event.name}</Link>
+        </td>
+        <td style={style}><b>{win}</b> Win</td>
+        <td><b>{lose}</b> Lose</td>
+      </tr>
+    );
+  }
+
+  renderEvents() {
+    const user = this.props.user;
+    const events = _.sortBy(user.events, e => -e.id);
+    return (
+      <blockquote>
+        <div style={{ marginBottom: '10px' }}>
+          Events
+        </div>
+        <table>
+          <tbody>
+            {events.map(event => this.renderEvent(event))}
+          </tbody>
+        </table>
+      </blockquote>
+    );
+  }
+
   render() {
     const user = this.props.user;
     if (!user) {
       return <div />;
     }
 
-    const win = user.games.reduce((n, g) => n + _.includes(g.winners, user.id), 0);
-    const lose = user.games.reduce((n, g) => n + _.includes(g.losers, user.id), 0);
+    const games = _.flatMap(user.events, event => event.games);
+    const win = games.reduce((n, g) => n + _.includes(g.winners, user.id), 0);
+    const lose = games.reduce((n, g) => n + _.includes(g.losers, user.id), 0);
 
     return (
       <Grid>
@@ -101,6 +136,7 @@ class User extends React.Component {
           Total <b>{win}</b> Win <b>{lose}</b> Lose
         </blockquote>
         {this.renderAgainstEachOther()}
+        {this.renderEvents()}
       </Grid>
     );
   }
