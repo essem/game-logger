@@ -117,7 +117,7 @@ class Event extends React.Component {
   handleFinish = () => {
     this.setState({ showFinishConfirm: false });
 
-    http.put(`/api/events/${this.props.event.id}`, { finished: true })
+    http.put(`/api/events/${this.props.event.id}/finish`)
     .then(() => {
       this.props.dispatch({
         type: 'FINISH_EVENT',
@@ -131,7 +131,7 @@ class Event extends React.Component {
   }
 
   handleReopen = () => {
-    http.put(`/api/events/${this.props.event.id}`, { finished: false })
+    http.put(`/api/events/${this.props.event.id}/reopen`)
     .then(() => {
       this.props.dispatch({
         type: 'REOPEN_EVENT',
@@ -226,6 +226,7 @@ class Event extends React.Component {
         <Button
           bsStyle="primary"
           className="pull-right"
+          disabled={this.props.event.games.length === 0}
           onClick={this.handleConfirmFinish}
         >
           Finish

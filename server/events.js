@@ -46,54 +46,81 @@ function init(app) {
     this.body = JSON.stringify(ret);
   }));
 
-  app.use(route.put('/api/events/:id', function* updateEvent(id) {
-    const req = this.request.body;
+  app.use(route.put('/api/events/:id/finish', function* finishEvent(id) {
     const event = yield models.event.findOne({
       where: { id },
     });
-    if (req.finished === true) {
-      event.finished = true;
-
-      const player = yield models.player.findOne({
-        attributes: [[models.sequelize.fn('COUNT', models.sequelize.col('id')), 'count']],
-        where: { eventId: id },
-      });
-      const playerCount = player.get('count');
-
-      const game = yield models.game.findAll({
-        attributes: ['id'],
-        where: { eventId: id },
-      });
-      const gameCount = game.length;
-
-      const mostWin = yield models.winner.findOne({
-        attributes: [
-          'playerId',
-          [
-            models.sequelize.fn('COUNT', models.sequelize.col('id')),
-            'count',
-          ],
-        ],
-        group: ['playerId'],
-        where: { gameId: game.map(g => g.id) },
-        order: 'count DESC',
-        limit: 1,
-      });
-      const mostWinCount = mostWin.get('count');
-
-      const mostWinner = yield models.player.findOne({
-        where: { id: mostWin.playerId },
-      });
-
-      event.summary = `${playerCount} players played ${gameCount} games.\n` +
-                      `Most wins: ${mostWinCount} wins by ${mostWinner.name}`;
-    } else if (req.finished === false) {
-      if (!this.admin) {
-        this.status = 401;
-        return;
-      }
-      event.finished = false;
+    if (!event) {
+      this.status = 400;
+      return;
     }
+
+    const game = yield models.game.findAll({
+      attributes: ['id'],
+      where: { eventId: id },
+    });
+    const gameCount = game.length;
+    if (gameCount === 0) {
+      this.status = 400;
+      return;
+    }
+
+    const player = yield models.player.findOne({
+      attributes: [[models.sequelize.fn('COUNT', models.sequelize.col('id')), 'count']],
+      where: { eventId: id },
+    });
+    const playerCount = player.get('count');
+
+    const mostWin = yield models.winner.findOne({
+      attributes: [
+        'playerId',
+        [
+          models.sequelize.fn('COUNT', models.sequelize.col('id')),
+          'count',
+        ],
+      ],
+      group: ['playerId'],
+      where: { gameId: game.map(g => g.id) },
+      order: 'count DESC',
+      limit: 1,
+    });
+    const mostWinCount = mostWin.get('count');
+
+    const mostWinner = yield models.player.findOne({
+      where: { id: mostWin.playerId },
+    });
+
+    event.finished = true;
+    event.summary = `${playerCount} players played ${gameCount} games.\n` +
+                    `Most wins: ${mostWinCount} wins by ${mostWinner.name}`;
+
+    yield event.save();
+
+    this.body = JSON.stringify({ id });
+  }));
+
+  app.use(route.put('/api/events/:id/reopen', function* reopenEvent(id) {
+    if (!this.admin) {
+      this.status = 401;
+      return;
+    }
+
+    const event = yield models.event.findOne({
+      where: { id },
+    });
+    event.finished = false;
+    yield event.save();
+
+    this.body = JSON.stringify({ id });
+  }));
+
+  app.use(route.put('/api/events/:id', function* updateEvent(id) {
+    // const req = this.request.body;
+    const event = yield models.event.findOne({
+      where: { id },
+    });
+
+    // TODO: Update allowed fields
 
     yield event.save();
     this.body = JSON.stringify({ id });
