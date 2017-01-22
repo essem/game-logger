@@ -96,7 +96,8 @@ function init(app) {
 
     yield event.save();
 
-    this.body = JSON.stringify({ id });
+    this.status = 200;
+    websocket.send(id, { type: 'finish' });
   }));
 
   app.use(route.put('/api/events/:id/reopen', function* reopenEvent(id) {

@@ -79,6 +79,11 @@ class Event extends React.Component {
     this.wsConnect();
   };
 
+  wsClose = () => {
+    this.socket.onclose = () => {};
+    this.socket.close();
+  };
+
   handleSocketMessage(data) {
     const message = JSON.parse(data);
     switch (message.type) {
@@ -106,6 +111,12 @@ class Event extends React.Component {
           id: message.playerId,
         });
         break;
+      case 'finish':
+        this.props.dispatch({
+          type: 'FINISH_EVENT',
+        });
+        this.wsClose();
+        break;
       default:
     }
   }
@@ -118,11 +129,6 @@ class Event extends React.Component {
     this.setState({ showFinishConfirm: false });
 
     http.put(`/api/events/${this.props.event.id}/finish`)
-    .then(() => {
-      this.props.dispatch({
-        type: 'FINISH_EVENT',
-      });
-    })
     .catch(() => {});
   }
 
