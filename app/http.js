@@ -1,3 +1,5 @@
+let dispatch;
+
 function request(path, method, body) {
   const headers = {
     'Content-Type': 'application/json',
@@ -17,10 +19,20 @@ function request(path, method, body) {
     options.body = JSON.stringify(body);
   }
 
+  dispatch({ type: 'SET_LOADING' });
+
   return fetch(`${API_HOST}${SUB_URI}${path}`, options)
-  .then(res => res.json());
+  .then((res) => {
+    dispatch({ type: 'CLEAR_LOADING' });
+    return res.json();
+  })
+  .catch((err) => {
+    dispatch({ type: 'CLEAR_LOADING' });
+    throw err;
+  });
 }
 
+exports.init = (store) => { dispatch = store.dispatch; };
 exports.get = path => request(path, 'get');
 exports.post = (path, body) => request(path, 'post', body);
 exports.put = (path, body) => request(path, 'put', body);

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router';
 import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import Spinner from 'react-spin';
 
 class Topbar extends React.Component {
   static propTypes = {
@@ -10,6 +11,7 @@ class Topbar extends React.Component {
     dispatch: React.PropTypes.func,
     router: React.PropTypes.object,
     account: React.PropTypes.string,
+    loading: React.PropTypes.bool,
   };
 
   componentDidMount() {
@@ -75,6 +77,7 @@ class Topbar extends React.Component {
           </Navbar.Collapse>
         </Navbar>
         {this.props.children}
+        {this.props.loading ? <div className="loading"><Spinner /></div> : ''}
       </div>
     );
   }
@@ -82,6 +85,7 @@ class Topbar extends React.Component {
 
 const mapStateToProps = state => ({
   account: state.app.account,
+  loading: state.app.loading,
 });
 
 export default withRouter(connect(mapStateToProps)(Topbar));

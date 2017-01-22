@@ -9,13 +9,18 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 // https://github.com/ReactTraining/react-router/issues/4006
 import createBrowserHistory from 'react-router/node_modules/history/lib/createBrowserHistory';
 
+// Reducers
 import appReducer from './reducers/app';
 import eventsReducer from './reducers/events';
 import eventReducer from './reducers/event';
 import usersReducer from './reducers/users';
 import userReducer from './reducers/user';
+
+// CSS
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import './public/app.css';
+
+// Components
 import Topbar from './components/Topbar';
 import Home from './components/Home';
 import Login from './components/Login';
@@ -26,6 +31,9 @@ import Games from './components/Games';
 import Summary from './components/Summary';
 import Users from './components/Users';
 import User from './components/User';
+
+// Etc.
+import http from './http';
 
 const app = document.createElement('div');
 document.body.appendChild(app);
@@ -46,6 +54,8 @@ const browserHistory = useRouterHistory(createBrowserHistory)({
   basename: SUB_URI,
 });
 const history = syncHistoryWithStore(browserHistory, store);
+
+http.init(store);
 
 ReactDOM.render((
   <Provider store={store}>

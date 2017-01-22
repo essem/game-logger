@@ -23,6 +23,18 @@ const app = (state = {}, action) => {
         admin: null,
       };
 
+    case 'SET_LOADING':
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case 'CLEAR_LOADING':
+      return {
+        ...state,
+        loading: false,
+      };
+
     default:
       return state;
   }
