@@ -71,6 +71,11 @@ class Topbar extends React.Component {
                 <NavItem>Users</NavItem>
               </LinkContainer>
             </Nav>
+            <Nav>
+              <LinkContainer to="/stats">
+                <NavItem>Statistics</NavItem>
+              </LinkContainer>
+            </Nav>
             <Nav pullRight>
               {this.renderLogin()}
             </Nav>

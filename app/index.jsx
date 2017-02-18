@@ -31,6 +31,7 @@ import Games from './components/Games';
 import Summary from './components/Summary';
 import Users from './components/Users';
 import User from './components/User';
+import Stats from './components/Stats';
 
 // Etc.
 import http from './http';
@@ -74,6 +75,9 @@ ReactDOM.render((
         <Route path="Users">
           <IndexRoute component={Users} />
           <Route path=":id" component={User} />
+        </Route>
+        <Route path="Stats">
+          <IndexRoute component={Stats} />
         </Route>
       </Route>
     </Router>
