@@ -1,12 +1,10 @@
-'use strict';
-
 const route = require('koa-route');
 const config = require('config');
 const jwt = require('jsonwebtoken');
 const models = require('./models');
 
-function* authenticate(account, password) {
-  const user = yield models.user.findOne({
+async function authenticate(account, password) {
+  const user = await models.user.findOne({
     where: {
       $and: [
         { name: account },
@@ -21,23 +19,23 @@ function* authenticate(account, password) {
 }
 
 function init(app) {
-  app.use(function* middleware(next) {
-    const token = this.headers['x-access-token'];
+  app.use(async (ctx, next) => {
+    const token = ctx.headers['x-access-token'];
     if (token) {
       try {
         const decoded = jwt.verify(token, config.auth.secret);
-        this.account = decoded.account;
-        this.admin = decoded.admin;
+        ctx.app.context.account = decoded.account;
+        ctx.app.context.admin = decoded.admin;
       } catch (err) {} // eslint-disable-line no-empty
     }
-    yield next;
+    await next();
   });
 
-  app.use(route.post('/api/login', function* login() {
-    const req = this.request.body;
-    const user = yield authenticate(req.account, req.password);
+  app.use(route.post('/api/login', async (ctx) => {
+    const req = ctx.request.body;
+    const user = await authenticate(req.account, req.password);
     if (!user) {
-      this.body = JSON.stringify({
+      ctx.body = JSON.stringify({
         token: null,
       });
       return;
@@ -48,7 +46,7 @@ function init(app) {
       expiresIn: '24h',
     });
 
-    this.body = JSON.stringify({
+    ctx.body = JSON.stringify({
       token,
     });
   }));

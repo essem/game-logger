@@ -1,13 +1,11 @@
-'use strict';
-
 const _ = require('lodash');
 const moment = require('moment');
 const route = require('koa-route');
 const models = require('./models');
 
 function init(app) {
-  app.use(route.get('/api/stats', function* stats() {
-    const months = _.clamp(parseInt(this.query.months, 10), 1, 12);
+  app.use(route.get('/api/stats', async (ctx) => {
+    const months = _.clamp(parseInt(ctx.query.months, 10), 1, 12);
 
     // Calculate range
     const now = moment();
@@ -21,7 +19,7 @@ function init(app) {
     }
 
     // Query all events within range
-    const events = yield models.event.findAll({
+    const events = await models.event.findAll({
       include: {
         model: models.game,
         include: [{
@@ -48,7 +46,7 @@ function init(app) {
     });
 
     // Make user map with initial data
-    const users = yield models.user.findAll();
+    const users = await models.user.findAll();
     const usersMap = {};
     for (const u of users) {
       usersMap[u.id] = { id: u.id, name: u.name, data: [] };
@@ -71,7 +69,7 @@ function init(app) {
       }
     }
 
-    this.body = {
+    ctx.body = {
       labels,
       users: _.sortBy(_.values(usersMap), o => o.name),
     };

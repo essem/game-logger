@@ -2,14 +2,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button, Badge } from 'react-bootstrap';
 import { withRouter, Link } from 'react-router';
+import nl2br from 'react-nl2br';
 import NewEvent from './NewEvent';
 import http from '../http';
 
 class Events extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
-    router: React.PropTypes.object,
-    events: React.PropTypes.array,
+    dispatch: React.PropTypes.func.isRequired,
+    router: React.PropTypes.object.isRequired,
+    events: React.PropTypes.array.isRequired,
   };
 
   static renderSummary(event) {
@@ -17,12 +18,7 @@ class Events extends React.Component {
       return <span>Event is in progress...<br /></span>;
     }
 
-    return event.summary.split('\n').map((item, i) => (
-      <span key={i}>
-        {item}
-        <br />
-      </span>
-    ));
+    return nl2br(event.summary);
   }
 
   static renderEvent(event) {
@@ -43,6 +39,7 @@ class Events extends React.Component {
         defaultExpanded={false}
       >
         {Events.renderSummary(event)}
+        <br />
         <br />
         <Link to={`/events/${event.id}/summary`} className="btn btn-default">
           View

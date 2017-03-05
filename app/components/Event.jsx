@@ -7,12 +7,17 @@ import http from '../http';
 
 class Event extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
-    router: React.PropTypes.object,
+    dispatch: React.PropTypes.func.isRequired,
+    router: React.PropTypes.object.isRequired,
     admin: React.PropTypes.bool,
     event: React.PropTypes.object,
-    children: React.PropTypes.element,
-    params: React.PropTypes.object,
+    children: React.PropTypes.element.isRequired,
+    params: React.PropTypes.object.isRequired,
+  };
+
+  static defaultProps = {
+    admin: false,
+    event: undefined,
   };
 
   state = {

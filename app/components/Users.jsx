@@ -7,9 +7,13 @@ import http from '../http';
 
 class Users extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
+    dispatch: React.PropTypes.func.isRequired,
     admin: React.PropTypes.bool,
-    users: React.PropTypes.array,
+    users: React.PropTypes.array.isRequired,
+  };
+
+  static defaultProps = {
+    admin: false,
   };
 
   state = {

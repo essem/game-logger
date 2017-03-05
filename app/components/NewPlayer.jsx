@@ -6,9 +6,9 @@ import http from '../http';
 
 class NewPlayer extends React.Component {
   static propTypes = {
-    players: React.PropTypes.array,
-    onCreate: React.PropTypes.func,
-    onClose: React.PropTypes.func,
+    players: React.PropTypes.array.isRequired,
+    onCreate: React.PropTypes.func.isRequired,
+    onClose: React.PropTypes.func.isRequired,
   };
 
   state = {

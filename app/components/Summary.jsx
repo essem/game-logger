@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 class Summary extends React.Component {
   static propTypes = {
-    event: React.PropTypes.object,
+    event: React.PropTypes.object.isRequired,
   };
 
   renderRankingByWins() {

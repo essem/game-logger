@@ -6,8 +6,8 @@ import http from '../http';
 
 class Players extends React.Component {
   static propTypes = {
-    event: React.PropTypes.object,
-    players: React.PropTypes.array,
+    event: React.PropTypes.object.isRequired,
+    players: React.PropTypes.array.isRequired,
   };
 
   state = {

@@ -1,22 +1,20 @@
-'use strict';
-
 const route = require('koa-route');
 const models = require('./models');
 
 function init(app) {
-  app.use(route.get('/api/users', function* listUsers() {
-    const users = yield models.user.findAll();
-    this.body = JSON.stringify(users);
+  app.use(route.get('/api/users', async (ctx) => {
+    const users = await models.user.findAll();
+    ctx.body = JSON.stringify(users);
   }));
 
-  app.use(route.post('/api/users', function* createUser() {
-    if (!this.admin) {
-      this.status = 401;
+  app.use(route.post('/api/users', async (ctx) => {
+    if (!ctx.admin) {
+      ctx.status = 401;
       return;
     }
 
-    const req = this.request.body;
-    const newUser = yield models.user.create({
+    const req = ctx.request.body;
+    const newUser = await models.user.create({
       name: req.name,
       password: models.sequelize.fn('crypt',
         req.password,
@@ -24,11 +22,11 @@ function init(app) {
       ),
       admin: false,
     });
-    this.body = JSON.stringify(newUser);
+    ctx.body = JSON.stringify(newUser);
   }));
 
-  app.use(route.get('/api/users/:id', function* showUser(id) {
-    const user = yield models.user.findOne({
+  app.use(route.get('/api/users/:id', async (ctx, id) => {
+    const user = await models.user.findOne({
       include: {
         model: models.player,
         include: {
@@ -62,7 +60,7 @@ function init(app) {
     };
 
     // Make user id to name map
-    const users = yield models.user.findAll();
+    const users = await models.user.findAll();
     for (const u of users) {
       out.users[u.id] = u.name;
     }
@@ -99,7 +97,7 @@ function init(app) {
       event.games = outGames;
     }
 
-    this.body = JSON.stringify(out);
+    ctx.body = JSON.stringify(out);
   }));
 }
 

@@ -8,8 +8,8 @@ import http from '../http';
 
 class Login extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
-    router: React.PropTypes.object,
+    dispatch: React.PropTypes.func.isRequired,
+    router: React.PropTypes.object.isRequired,
   };
 
   state = {

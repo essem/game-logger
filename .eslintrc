@@ -1,17 +1,21 @@
 {
   "parser": "babel-eslint", // TODO: Wan to move this config to app/.eslintrc, but ATOM does not work
-  "extends": [
-    "airbnb",
-  ],
+  "extends": ["airbnb"],
   "rules": {
-    "strict": "off",
     "import/no-extraneous-dependencies": "off",
-    'no-restricted-syntax': [
-      'error',
-      'ForInStatement',
-      //'ForOfStatement',
-      'LabeledStatement',
-      'WithStatement',
+    "no-restricted-syntax": [
+      "error",
+      "ForInStatement",
+      //"ForOfStatement",
+      "LabeledStatement",
+      "WithStatement"
+    ],
+    "no-param-reassign": [
+      "error",
+      {
+        "props": true,
+        "ignorePropertyModificationsFor": ["ctx"]
+      }
     ],
     "comma-dangle": [
       "error", {
@@ -19,8 +23,8 @@
         "objects": "always-multiline",
         "imports": "always-multiline",
         "exports": "always-multiline",
-        "functions": "never",
-      },
-    ],
-  },
+        "functions": "never"
+      }
+    ]
+  }
 }

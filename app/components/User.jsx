@@ -7,9 +7,13 @@ import http from '../http';
 
 class User extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
-    params: React.PropTypes.object,
+    dispatch: React.PropTypes.func.isRequired,
+    params: React.PropTypes.object.isRequired,
     user: React.PropTypes.object,
+  };
+
+  static defaultProps = {
+    user: undefined,
   };
 
   componentDidMount() {

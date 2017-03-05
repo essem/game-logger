@@ -3,11 +3,11 @@ import { Button, Modal } from 'react-bootstrap';
 
 export default class Confirm extends React.Component {
   static propTypes = {
-    message: React.PropTypes.string,
-    okayText: React.PropTypes.string,
-    okayStyle: React.PropTypes.string,
-    onOkay: React.PropTypes.func,
-    onCancel: React.PropTypes.func,
+    message: React.PropTypes.string.isRequired,
+    okayText: React.PropTypes.string.isRequired,
+    okayStyle: React.PropTypes.string.isRequired,
+    onOkay: React.PropTypes.func.isRequired,
+    onCancel: React.PropTypes.func.isRequired,
   };
 
   render() {

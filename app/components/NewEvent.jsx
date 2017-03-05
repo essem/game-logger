@@ -5,8 +5,8 @@ import moment from 'moment';
 
 export default class NewEvent extends React.Component {
   static propTypes = {
-    onCreate: React.PropTypes.func,
-    onClose: React.PropTypes.func,
+    onCreate: React.PropTypes.func.isRequired,
+    onClose: React.PropTypes.func.isRequired,
   };
 
   componentDidMount() {

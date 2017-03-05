@@ -5,7 +5,6 @@ import http from '../http';
 
 export default class Stats extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func,
   };
 
   state = {

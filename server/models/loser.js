@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = (sequelize) => {
   const loser = sequelize.define('loser', {
   }, {

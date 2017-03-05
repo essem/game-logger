@@ -4,10 +4,10 @@ import { Well, Row, Col, Button, Modal } from 'react-bootstrap';
 
 class NewGame extends React.Component {
   static propTypes = {
-    players: React.PropTypes.array,
-    team: React.PropTypes.bool,
-    onCreate: React.PropTypes.func,
-    onClose: React.PropTypes.func,
+    players: React.PropTypes.array.isRequired,
+    team: React.PropTypes.bool.isRequired,
+    onCreate: React.PropTypes.func.isRequired,
+    onClose: React.PropTypes.func.isRequired,
   };
 
   state = {

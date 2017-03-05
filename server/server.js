@@ -1,6 +1,4 @@
-'use strict';
-
-const koa = require('koa');
+const Koa = require('koa');
 const cors = require('koa-cors');
 const bodyParser = require('koa-bodyparser');
 const send = require('koa-send');
@@ -15,7 +13,7 @@ const users = require('./users');
 const stats = require('./stats');
 
 function createKoa(hostname, port) {
-  const app = koa();
+  const app = new Koa();
 
   app.use(bodyParser());
 
@@ -24,7 +22,7 @@ function createKoa(hostname, port) {
       logger.info(message.slice(0, -1));
     },
   };
-  app.use(morgan.middleware('combined', { stream }));
+  app.use(morgan('combined', { stream }));
 
   if (config.get('cors')) {
     app.use(cors());
@@ -39,8 +37,8 @@ function createKoa(hostname, port) {
     app.use(require('koa-static')('dist')); // eslint-disable-line global-require
   }
 
-  app.use(function* index() {
-    yield send(this, 'dist/index.html');
+  app.use(async (ctx) => {
+    await send(ctx, 'dist/index.html');
   });
 
   const httpServer = app.listen(port, hostname);

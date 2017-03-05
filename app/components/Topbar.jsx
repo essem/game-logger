@@ -7,11 +7,16 @@ import Spinner from 'react-spin';
 
 class Topbar extends React.Component {
   static propTypes = {
-    children: React.PropTypes.element,
-    dispatch: React.PropTypes.func,
-    router: React.PropTypes.object,
+    children: React.PropTypes.element.isRequired,
+    dispatch: React.PropTypes.func.isRequired,
+    router: React.PropTypes.object.isRequired,
     account: React.PropTypes.string,
     loading: React.PropTypes.bool,
+  };
+
+  static defaultProps = {
+    account: undefined,
+    loading: undefined,
   };
 
   componentDidMount() {

@@ -4,8 +4,8 @@ import { Button, Modal, Form, FormGroup, FormControl, ControlLabel } from 'react
 
 export default class NewUser extends React.Component {
   static propTypes = {
-    onCreate: React.PropTypes.func,
-    onClose: React.PropTypes.func,
+    onCreate: React.PropTypes.func.isRequired,
+    onClose: React.PropTypes.func.isRequired,
   };
 
   componentDidMount() {

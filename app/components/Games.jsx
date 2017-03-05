@@ -8,9 +8,9 @@ import http from '../http';
 
 class Games extends React.Component {
   static propTypes = {
-    event: React.PropTypes.object,
-    players: React.PropTypes.array,
-    games: React.PropTypes.array,
+    event: React.PropTypes.object.isRequired,
+    players: React.PropTypes.array.isRequired,
+    games: React.PropTypes.array.isRequired,
   };
 
   state = {
