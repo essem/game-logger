@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, Col, Panel, Form, FormGroup, FormControl, Checkbox } from 'react-bootstrap';
-import { Line as LineChart } from 'react-chartjs';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import http from '../http';
 
 export default class Stats extends React.Component {
@@ -76,31 +76,13 @@ export default class Stats extends React.Component {
     ];
 
     const filtered = users.filter(user => selected.includes(user.id));
-    const datasets = filtered.map((user, i) => {
-      const fillColor = `rgba(${colors[i % colors.length].join(',')},0.2)`;
-      const strokeColor = `rgb(${colors[i % colors.length].join(',')})`;
-      return {
-        label: user.name,
-        data: user.data.map(dataFunc),
-        fillColor,
-        strokeColor,
-        pointColor: '#fff',
-        pointStrokeColor: strokeColor,
-        pointHighlightFill: strokeColor,
-        pointHighlightStroke: strokeColor,
-      };
+    const data = labels.map((label, index) => {
+      const col = { label };
+      filtered.forEach((user) => {
+        col[user.name] = dataFunc(user.data[index]);
+      });
+      return col;
     });
-
-    const data = {
-      labels,
-      datasets,
-    };
-
-    const chartOptions = {
-      responsive: true,
-      bezierCurve: true,
-      bezierCurveTension: 0.2,
-    };
 
     return (
       <Grid>
@@ -144,11 +126,18 @@ export default class Stats extends React.Component {
           ))}
         </Panel>
         <br />
-        <LineChart
-          data={data}
-          options={chartOptions}
-          redraw
-        />
+        <ResponsiveContainer width="100%" aspect={2}>
+          <LineChart data={data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+            <XAxis dataKey="label" />
+            <YAxis />
+            <CartesianGrid strokeDasharray="3 3" />
+            <Tooltip itemSorter={(a, b) => a.value < b.value} />
+            <Legend />
+            {users.map((user, index) => (
+              <Line key={user.id} type="monotone" dataKey={user.name} stroke={`rgb(${colors[index % colors.length].join(',')})`} />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
       </Grid>
     );
   }
