@@ -1,7 +1,9 @@
+import _ from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button, Badge } from 'react-bootstrap';
 import { withRouter, Link } from 'react-router';
+import InfiniteScroll from 'react-infinite-scroller';
 import nl2br from 'react-nl2br';
 import NewEvent from './NewEvent';
 import http from '../http';
@@ -11,6 +13,7 @@ class Events extends React.Component {
     dispatch: React.PropTypes.func.isRequired,
     router: React.PropTypes.object.isRequired,
     events: React.PropTypes.array.isRequired,
+    hasMore: React.PropTypes.bool.isRequired,
   };
 
   static renderSummary(event) {
@@ -36,7 +39,7 @@ class Events extends React.Component {
         key={event.id}
         header={header}
         collapsible
-        defaultExpanded={false}
+        defaultExpanded
       >
         {Events.renderSummary(event)}
         <br />
@@ -52,16 +55,30 @@ class Events extends React.Component {
     showNewEventModal: false,
   };
 
-  componentDidMount() {
-    http.get('/api/events')
+  loading = false;
+
+  handleLoadMore = () => {
+    if (this.loading) {
+      return;
+    }
+    this.loading = true;
+
+    let params = '';
+    if (this.props.events.length > 0) {
+      const last = _.last(this.props.events);
+      params = `?createdAt=${last.createdAt}&id=${last.id}`;
+    }
+    http.get(`/api/events${params}`)
     .then((events) => {
       this.props.dispatch({
-        type: 'INIT_EVENTS',
-        events,
+        type: 'LOAD_EVENTS',
+        list: events.list,
+        hasMore: events.list.length > 0,
       });
+      this.loading = false;
     })
     .catch(() => {});
-  }
+  };
 
   handleNewEvent = () => {
     this.setState({ showNewEventModal: true });
@@ -103,7 +120,8 @@ class Events extends React.Component {
   }
 
   render() {
-    const events = this.props.events.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    const events = this.props.events;
+    const loader = <div className="loader">Loading ...</div>;
 
     return (
       <Grid>
@@ -134,7 +152,16 @@ class Events extends React.Component {
         </Row>
         <Row>
           <Col xs={12}>
-            {events.map(event => Events.renderEvent(event))}
+            <InfiniteScroll
+              pageStart={0}
+              loadMore={this.handleLoadMore}
+              hasMore={this.props.hasMore}
+              loader={loader}
+            >
+              <div className="tracks">
+                {events.map(event => Events.renderEvent(event))}
+              </div>
+            </InfiniteScroll>
           </Col>
         </Row>
       </Grid>
@@ -143,7 +170,8 @@ class Events extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  events: state.events,
+  events: state.events.list,
+  hasMore: state.events.hasMore,
 });
 
 export default withRouter(connect(mapStateToProps)(Events));

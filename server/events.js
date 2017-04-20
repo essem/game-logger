@@ -6,10 +6,27 @@ const logger = require('./logger');
 
 function init(app) {
   app.use(route.get('/api/events', async (ctx) => {
-    const events = await models.event.findAll({
-      order: [['createdAt', 'DESC']],
-    });
-    ctx.body = JSON.stringify(events);
+    const options = {
+      order: [['createdAt', 'DESC'], ['id', 'DESC']],
+      limit: 10,
+    };
+
+    if (ctx.query.createdAt && ctx.query.id) {
+      options.where = {
+        $or: [
+          { createdAt: { lt: ctx.query.createdAt } },
+          {
+            $and: [
+              { createdAt: ctx.query.createdAt },
+              { id: { lt: ctx.query.id } },
+            ],
+          },
+        ],
+      };
+    }
+
+    const events = await models.event.findAll(options);
+    ctx.body = JSON.stringify({ list: events });
   }));
 
   app.use(route.post('/api/events', async (ctx) => {

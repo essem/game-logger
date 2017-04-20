@@ -1,13 +1,27 @@
-const events = (state = [], action) => {
+const initialState = {
+  list: [],
+  hasMore: true,
+};
+
+const events = (state = initialState, action) => {
   switch (action.type) {
-    case 'INIT_EVENTS':
-      return [...action.events];
+    case 'LOAD_EVENTS':
+      return {
+        list: [...state.list, ...action.list],
+        hasMore: action.hasMore,
+      };
 
     case 'CREATE_EVENT':
-      return [...state, action.event];
+      return {
+        ...state,
+        list: [...state.list, action.event],
+      };
 
     case 'DELETE_EVENT':
-      return state.filter(e => e.id !== action.id);
+      return {
+        ...state,
+        list: state.list.filter(e => e.id !== action.id),
+      };
 
     default:
       return state;
