@@ -1,15 +1,16 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Grid, Row, Col, Panel, Button, FormGroup, ControlLabel,
   Form, FormControl, Alert } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 import http from '../http';
 
 class Login extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func.isRequired,
-    router: React.PropTypes.object.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    history: PropTypes.object.isRequired,
   };
 
   state = {
@@ -27,7 +28,7 @@ class Login extends React.Component {
           type: 'LOGIN',
           token: res.token,
         });
-        this.props.router.push('/');
+        this.props.history.push('/');
       } else {
         this.setState({ loginMessage: 'Failed to login' });
       }

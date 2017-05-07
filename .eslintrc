@@ -3,6 +3,7 @@
   "extends": ["airbnb"],
   "rules": {
     "import/no-extraneous-dependencies": "off",
+    "jsx-a11y/img-has-alt": "off", // Turn off until airbnb-config is updated
     "no-restricted-syntax": [
       "error",
       "ForInStatement",

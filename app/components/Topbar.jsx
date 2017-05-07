@@ -1,17 +1,24 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { withRouter, Link } from 'react-router';
+import { withRouter, Route, Link } from 'react-router-dom';
 import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import Spinner from 'react-spin';
+import Spinner from 'react-spinkit';
+import PropTypes from 'prop-types';
+import Home from './Home';
+import Login from './Login';
+import Events from './Events';
+import Event from './Event';
+import Users from './Users';
+import User from './User';
+import Stats from './Stats';
 
 class Topbar extends React.Component {
   static propTypes = {
-    children: React.PropTypes.element.isRequired,
-    dispatch: React.PropTypes.func.isRequired,
-    router: React.PropTypes.object.isRequired,
-    account: React.PropTypes.string,
-    loading: React.PropTypes.bool,
+    dispatch: PropTypes.func.isRequired,
+    history: PropTypes.object.isRequired,
+    account: PropTypes.string,
+    loading: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -34,7 +41,7 @@ class Topbar extends React.Component {
     this.props.dispatch({
       type: 'LOGOUT',
     });
-    this.props.router.push('/');
+    this.props.history.push('/');
   };
 
   renderLogin() {
@@ -86,8 +93,16 @@ class Topbar extends React.Component {
             </Nav>
           </Navbar.Collapse>
         </Navbar>
-        {this.props.children}
-        {this.props.loading ? <div className="loading"><Spinner /></div> : ''}
+
+        <Route exact path="/" component={Home} />
+        <Route exact path="/login" component={Login} />
+        <Route exact path="/events" component={Events} />
+        <Route path="/events/:id" component={Event} />
+        <Route exact path="/users" component={Users} />
+        <Route path="/users/:id" component={User} />
+        <Route exact path="/stats" component={Stats} />
+
+        {this.props.loading ? <div className="loading"><Spinner spinnerName="chasing-dots" noFadeIn /></div> : ''}
       </div>
     );
   }

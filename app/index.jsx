@@ -3,11 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
-import { Router, Route, IndexRoute, useRouterHistory } from 'react-router';
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
-
-// https://github.com/ReactTraining/react-router/issues/4006
-import createBrowserHistory from 'react-router/node_modules/history/lib/createBrowserHistory';
+import { BrowserRouter, Route } from 'react-router-dom';
 
 // Reducers
 import appReducer from './reducers/app';
@@ -22,16 +18,6 @@ import './public/app.css';
 
 // Components
 import Topbar from './components/Topbar';
-import Home from './components/Home';
-import Login from './components/Login';
-import Events from './components/Events';
-import Event from './components/Event';
-import Players from './components/Players';
-import Games from './components/Games';
-import Summary from './components/Summary';
-import Users from './components/Users';
-import User from './components/User';
-import Stats from './components/Stats';
 
 // Etc.
 import http from './http';
@@ -46,40 +32,17 @@ const store = createStore(
     event: eventReducer,
     users: usersReducer,
     user: userReducer,
-    routing: routerReducer,
   }),
   undefined,
   window.devToolsExtension ? window.devToolsExtension() : undefined
 );
-const browserHistory = useRouterHistory(createBrowserHistory)({
-  basename: SUB_URI,
-});
-const history = syncHistoryWithStore(browserHistory, store);
 
 http.init(store);
 
 ReactDOM.render((
   <Provider store={store}>
-    <Router history={history}>
-      <Route path="/" component={Topbar}>
-        <IndexRoute component={Home} />
-        <Route path="login" component={Login} />
-        <Route path="events">
-          <IndexRoute component={Events} />
-          <Route path=":id" component={Event}>
-            <Route path="players" component={Players} />
-            <Route path="games" component={Games} />
-            <Route path="summary" component={Summary} />
-          </Route>
-        </Route>
-        <Route path="Users">
-          <IndexRoute component={Users} />
-          <Route path=":id" component={User} />
-        </Route>
-        <Route path="Stats">
-          <IndexRoute component={Stats} />
-        </Route>
-      </Route>
-    </Router>
+    <BrowserRouter>
+      <Route path="/" component={Topbar} />
+    </BrowserRouter>
   </Provider>
 ), app);

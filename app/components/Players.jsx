@@ -1,13 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button, Glyphicon } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 import NewPlayer from './NewPlayer';
 import http from '../http';
 
 class Players extends React.Component {
   static propTypes = {
-    event: React.PropTypes.object.isRequired,
-    players: React.PropTypes.array.isRequired,
+    event: PropTypes.object.isRequired,
+    players: PropTypes.array.isRequired,
   };
 
   state = {

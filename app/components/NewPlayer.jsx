@@ -1,14 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Button, Modal, Row, Col } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import http from '../http';
 
 class NewPlayer extends React.Component {
   static propTypes = {
-    players: React.PropTypes.array.isRequired,
-    onCreate: React.PropTypes.func.isRequired,
-    onClose: React.PropTypes.func.isRequired,
+    players: PropTypes.array.isRequired,
+    onCreate: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
   };
 
   state = {

@@ -1,18 +1,21 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Badge, ButtonGroup, Button, ButtonToolbar } from 'react-bootstrap';
-import { withRouter, Link } from 'react-router';
+import { withRouter, Route, NavLink } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import Confirm from './Confirm';
 import http from '../http';
+import Players from './Players';
+import Games from './Games';
+import Summary from './Summary';
 
 class Event extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func.isRequired,
-    router: React.PropTypes.object.isRequired,
-    admin: React.PropTypes.bool,
-    event: React.PropTypes.object,
-    children: React.PropTypes.element.isRequired,
-    params: React.PropTypes.object.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    history: PropTypes.object.isRequired,
+    admin: PropTypes.bool,
+    event: PropTypes.object,
+    match: PropTypes.object.isRequired,
   };
 
   static defaultProps = {
@@ -27,7 +30,7 @@ class Event extends React.Component {
   };
 
   componentDidMount() {
-    const eventId = parseInt(this.props.params.id, 10);
+    const eventId = parseInt(this.props.match.params.id, 10);
     http.get(`/api/events/${eventId}`)
     .then((event) => {
       this.props.dispatch({
@@ -56,7 +59,7 @@ class Event extends React.Component {
   }
 
   wsConnect = () => {
-    const eventId = parseInt(this.props.params.id, 10);
+    const eventId = parseInt(this.props.match.params.id, 10);
     let wsHost = WS_HOST;
     if (wsHost === '') {
       const loc = window.location;
@@ -165,7 +168,7 @@ class Event extends React.Component {
         type: 'DELETE_EVENT',
         id: res.id,
       });
-      this.props.router.push('/events');
+      this.props.history.push('/events');
     })
     .catch(() => {});
   }
@@ -286,33 +289,35 @@ class Event extends React.Component {
           <Row>
             <Col xs={12}>
               <ButtonGroup justified style={{ height: '50px' }}>
-                <Link
+                <NavLink
                   to={`/events/${event.id}/players`}
                   className="btn btn-default"
                   activeClassName="active"
                 >
                   Players
-                </Link>
-                <Link
+                </NavLink>
+                <NavLink
                   to={`/events/${event.id}/games`}
                   className="btn btn-default"
                   activeClassName="active"
                 >
                   Games
-                </Link>
-                <Link
+                </NavLink>
+                <NavLink
                   to={`/events/${event.id}/summary`}
                   className="btn btn-default"
                   activeClassName="active"
                 >
                   Summary
-                </Link>
+                </NavLink>
               </ButtonGroup>
             </Col>
           </Row>
         </Grid>
         <br />
-        {this.props.children}
+        <Route exact path={`${this.props.match.url}/players`} component={Players} />
+        <Route exact path={`${this.props.match.url}/games`} component={Games} />
+        <Route exact path={`${this.props.match.url}/summary`} component={Summary} />
       </div>
     );
   }

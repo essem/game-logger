@@ -1,15 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel } from 'react-bootstrap';
-import { withRouter, Link } from 'react-router';
+import { withRouter, Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import http from '../http';
 
 class User extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func.isRequired,
-    params: React.PropTypes.object.isRequired,
-    user: React.PropTypes.object,
+    dispatch: PropTypes.func.isRequired,
+    match: PropTypes.object.isRequired,
+    user: PropTypes.object,
   };
 
   static defaultProps = {
@@ -17,7 +18,7 @@ class User extends React.Component {
   };
 
   componentDidMount() {
-    const userId = parseInt(this.props.params.id, 10);
+    const userId = parseInt(this.props.match.params.id, 10);
     http.get(`/api/users/${userId}`)
     .then((user) => {
       this.props.dispatch({

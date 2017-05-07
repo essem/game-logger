@@ -1,13 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Well, Row, Col, Button, Modal } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 
 class NewGame extends React.Component {
   static propTypes = {
-    players: React.PropTypes.array.isRequired,
-    team: React.PropTypes.bool.isRequired,
-    onCreate: React.PropTypes.func.isRequired,
-    onClose: React.PropTypes.func.isRequired,
+    players: PropTypes.array.isRequired,
+    team: PropTypes.bool.isRequired,
+    onCreate: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
   };
 
   state = {

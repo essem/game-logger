@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button, Modal, Form, FormGroup, FormControl } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 
 export default class NewEvent extends React.Component {
   static propTypes = {
-    onCreate: React.PropTypes.func.isRequired,
-    onClose: React.PropTypes.func.isRequired,
+    onCreate: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
   };
 
   componentDidMount() {

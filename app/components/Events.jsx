@@ -2,18 +2,19 @@ import _ from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button, Badge } from 'react-bootstrap';
-import { withRouter, Link } from 'react-router';
+import { withRouter, Link } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
+import PropTypes from 'prop-types';
 import nl2br from 'react-nl2br';
 import NewEvent from './NewEvent';
 import http from '../http';
 
 class Events extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func.isRequired,
-    router: React.PropTypes.object.isRequired,
-    events: React.PropTypes.array.isRequired,
-    hasMore: React.PropTypes.bool.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    history: PropTypes.object.isRequired,
+    events: PropTypes.array.isRequired,
+    hasMore: PropTypes.bool.isRequired,
   };
 
   static renderSummary(event) {
@@ -97,7 +98,7 @@ class Events extends React.Component {
         type: 'CREATE_EVENT',
         event: res,
       });
-      this.props.router.push(`/events/${res.id}/players`);
+      this.props.history.push(`/events/${res.id}/players`);
     })
     .catch(() => {});
   }

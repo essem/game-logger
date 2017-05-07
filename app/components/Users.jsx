@@ -1,15 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Button } from 'react-bootstrap';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import NewUser from './NewUser';
 import http from '../http';
 
 class Users extends React.Component {
   static propTypes = {
-    dispatch: React.PropTypes.func.isRequired,
-    admin: React.PropTypes.bool,
-    users: React.PropTypes.array.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    admin: PropTypes.bool,
+    users: PropTypes.array.isRequired,
   };
 
   static defaultProps = {

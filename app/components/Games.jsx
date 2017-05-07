@@ -2,15 +2,16 @@ import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { connect } from 'react-redux';
 import { Grid, Row, Col, Panel, Button, Badge, Glyphicon } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 import NewGame from './NewGame';
 import Confirm from './Confirm';
 import http from '../http';
 
 class Games extends React.Component {
   static propTypes = {
-    event: React.PropTypes.object.isRequired,
-    players: React.PropTypes.array.isRequired,
-    games: React.PropTypes.array.isRequired,
+    event: PropTypes.object.isRequired,
+    players: PropTypes.array.isRequired,
+    games: PropTypes.array.isRequired,
   };
 
   state = {

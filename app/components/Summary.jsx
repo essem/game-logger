@@ -1,11 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid, Row, Col } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 
 class Summary extends React.Component {
   static propTypes = {
-    event: React.PropTypes.object.isRequired,
+    event: PropTypes.object.isRequired,
   };
 
   renderRankingByWins() {
