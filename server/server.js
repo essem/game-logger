@@ -52,10 +52,7 @@ function createKoa(hostname, port) {
 }
 
 function createServer(hostname, port) {
-  return models.sequelize.sync()
-  .then(() => {
-    createKoa(hostname, port);
-  });
+  return createKoa(hostname, port);
 }
 
 module.exports = createServer;

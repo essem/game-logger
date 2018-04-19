@@ -1,15 +1,9 @@
-FROM nodesource/node:6
+FROM node:8
 
-# Do 'npm run build' first
-
-ENV NODE_ENV production
-
-RUN apt-get update
-
-ADD package.json package.json
+RUN mkdir /src
+WORKDIR /src
+ADD package.json /src/package.json
 RUN npm install
-ADD . .
+ADD . /src
 
-CMD ["npm","start"]
-
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+CMD ["npm", "start"]

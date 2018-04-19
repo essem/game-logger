@@ -23,6 +23,12 @@ module.exports = {
     )
     .then(() =>
       queryInterface.sequelize.query(
+        'INSERT INTO users(name, password, admin, "createdAt", "updatedAt") ' +
+        'VALUES (\'admin\', crypt(\'admin\', gen_salt(\'bf\', 8)), true, now(), now());'
+      )
+    )
+    .then(() =>
+      queryInterface.sequelize.query(
         'INSERT INTO users(name, "createdAt", "updatedAt") ' +
         'SELECT name, now(), now() FROM (SELECT DISTINCT name FROM players) A'
       )

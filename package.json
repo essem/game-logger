@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "env NODE_ENV=production node server/index.js",
+    "migrate": "sequelize db:migrate --url 'postgres://gameLogger:gameLogger@postgres/gameLogger'",
     "build": "rimraf dist && env NODE_ENV=production webpack --config ./webpack.production.config.js",
     "eslint": "eslint --ext .js --ext .jsx .",
     "dev-back": "nodemon -w server -w config server/index.js",
