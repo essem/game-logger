@@ -5,11 +5,12 @@ const models = require('./models');
 
 function init(app) {
   app.use(route.get('/api/stats', async (ctx) => {
+    const offset = _.clamp(parseInt(ctx.query.offset, 10), 0, 24);
     const months = _.clamp(parseInt(ctx.query.months, 10), 1, 12);
 
     // Calculate range
     const now = moment();
-    const endDate = now.clone().add(1, 'months');
+    const endDate = now.clone().add(1, 'months').subtract(offset, 'months');
     const beginDate = endDate.clone().subtract(months, 'months');
 
     // Make labels

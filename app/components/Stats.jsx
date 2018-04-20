@@ -11,16 +11,17 @@ export default class Stats extends React.Component {
     labels: null,
     users: null,
     selected: [],
+    offset: 0,
     months: 6,
     type: 'sum',
   };
 
   componentDidMount() {
-    this.queryStats(this.state.months);
+    this.queryStats(this.state.offset, this.state.months);
   }
 
-  queryStats(months) {
-    http.get(`/api/stats?months=${months}`)
+  queryStats(offset, months) {
+    http.get(`/api/stats?offset=${offset}&months=${months}`)
     .then((stats) => {
       this.setState({
         labels: stats.labels,
@@ -31,10 +32,16 @@ export default class Stats extends React.Component {
     .catch(() => {});
   }
 
+  handleChangeOffset = (e) => {
+    const offset = parseInt(e.target.value, 10);
+    this.setState({ offset });
+    this.queryStats(offset, this.state.months);
+  };
+
   handleChangeMonths = (e) => {
     const months = parseInt(e.target.value, 10);
     this.setState({ months });
-    this.queryStats(months);
+    this.queryStats(this.state.offset, months);
   };
 
   handleChangeType = (e) => {
@@ -87,6 +94,20 @@ export default class Stats extends React.Component {
     return (
       <Grid>
         <Form inline>
+          <FormGroup controlId="formControlsSelect">
+            <FormControl
+              componentClass="select"
+              value={this.state.offset}
+              onChange={this.handleChangeOffset}
+            >
+              <option value="0">Until now</option>
+              <option value="3">3 Months before</option>
+              <option value="6">6 Months before</option>
+              <option value="12">12 Months before</option>
+              <option value="24">24 Months before</option>
+            </FormControl>
+          </FormGroup>
+          {' '}
           <FormGroup controlId="formControlsSelect">
             <FormControl
               componentClass="select"
