@@ -8,7 +8,7 @@
     "migrate": "sequelize db:migrate --url 'postgres://gameLogger:gameLogger@postgres/gameLogger'",
     "build": "rimraf dist && env NODE_ENV=production webpack --config ./webpack.production.config.js",
     "eslint": "eslint --ext .js --ext .jsx .",
-    "dev-back": "nodemon -w server -w config server/index.js",
+    "dev-back": "nodemon -w server -w config --inspect=0.0.0.0:9229 server/index.js",
     "dev-front": "webpack-dev-server",
     "test": "NODE_ENV=test mocha --compilers js:babel-core/register --require babel-polyfill",
     "test-cover": "NODE_ENV=test babel-node ./node_modules/istanbul/lib/cli cover _mocha",
