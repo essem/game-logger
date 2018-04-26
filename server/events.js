@@ -100,12 +100,15 @@ function init(app) {
     const mostWinCount = mostWin.get('count');
 
     const mostWinner = await models.player.findOne({
+      include: {
+        model: models.user,
+      },
       where: { id: mostWin.playerId },
     });
 
     event.finished = true;
     event.summary = `${playerCount} players played ${gameCount} games.\n` +
-                    `Most wins: ${mostWinCount} wins by ${mostWinner.name}`;
+                    `Most wins: ${mostWinCount} wins by ${mostWinner.user.name}`;
 
     await event.save();
 
