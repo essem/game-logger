@@ -56,14 +56,13 @@ class Events extends React.Component {
     showNewEventModal: false,
   };
 
-  loading = false;
+  componentWillUnmount() {
+    this.props.dispatch({
+      type: 'RESET_EVENTS',
+    });
+  }
 
   handleLoadMore = () => {
-    if (this.loading) {
-      return;
-    }
-    this.loading = true;
-
     let params = '';
     if (this.props.events.length > 0) {
       const last = _.last(this.props.events);
@@ -76,7 +75,6 @@ class Events extends React.Component {
         list: events.list,
         hasMore: events.list.length > 0,
       });
-      this.loading = false;
     })
     .catch(() => {});
   };

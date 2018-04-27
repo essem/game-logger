@@ -1,16 +1,31 @@
 import jwtDecode from 'jwt-decode';
 
-const app = (state = {}, action) => {
+const initialState = {
+  checkToken: true,
+  token: null,
+  account: '',
+  admin: false,
+  loading: false,
+};
+
+const app = (state = initialState, action) => {
   switch (action.type) {
     case 'LOGIN':
       {
-        localStorage.setItem('token', action.token);
-        const decoded = jwtDecode(action.token);
+        if (action.token) {
+          localStorage.setItem('token', action.token);
+          const decoded = jwtDecode(action.token);
+          return {
+            ...state,
+            checkToken: false,
+            token: action.token,
+            account: decoded.account,
+            admin: decoded.admin,
+          };
+        }
         return {
           ...state,
-          token: action.token,
-          account: decoded.account,
-          admin: decoded.admin,
+          checkToken: false,
         };
       }
 
@@ -19,7 +34,7 @@ const app = (state = {}, action) => {
       return {
         ...state,
         token: null,
-        account: null,
+        account: '',
         admin: null,
       };
 

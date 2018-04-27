@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { withRouter, Route, Link } from 'react-router-dom';
 import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import Spinner from 'react-spinkit';
 import PropTypes from 'prop-types';
 import Home from './Home';
 import Login from './Login';
@@ -12,29 +11,24 @@ import Event from './Event';
 import Users from './Users';
 import User from './User';
 import Stats from './Stats';
+import LoadingSpinner from './LoadingSpinner';
 
 class Topbar extends React.Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
     history: PropTypes.object.isRequired,
-    account: PropTypes.string,
-    loading: PropTypes.bool,
-  };
-
-  static defaultProps = {
-    account: undefined,
-    loading: undefined,
+    checkToken: PropTypes.bool.isRequired,
+    account: PropTypes.string.isRequired,
   };
 
   componentDidMount() {
     const token = localStorage.getItem('token');
-    if (token) {
-      // TODO: Ask to server if token is valid
-      this.props.dispatch({
-        type: 'LOGIN',
-        token,
-      });
-    }
+
+    // TODO: Ask to server if token is valid
+    this.props.dispatch({
+      type: 'LOGIN',
+      token,
+    });
   }
 
   handleLogout = () => {
@@ -45,7 +39,7 @@ class Topbar extends React.Component {
   };
 
   renderLogin() {
-    if (this.props.account) {
+    if (this.props.account !== '') {
       return (
         <NavDropdown title={this.props.account} id="login">
           <MenuItem onClick={this.handleLogout}>
@@ -63,6 +57,10 @@ class Topbar extends React.Component {
   }
 
   render() {
+    if (this.props.checkToken) {
+      return <div>Loading...</div>;
+    }
+
     return (
       <div>
         <Navbar>
@@ -102,15 +100,15 @@ class Topbar extends React.Component {
         <Route path="/users/:id" component={User} />
         <Route exact path="/stats" component={Stats} />
 
-        {this.props.loading ? <div className="loading"><Spinner spinnerName="chasing-dots" noFadeIn /></div> : ''}
+        <LoadingSpinner />
       </div>
     );
   }
 }
 
 const mapStateToProps = state => ({
+  checkToken: state.app.checkToken,
   account: state.app.account,
-  loading: state.app.loading,
 });
 
 export default withRouter(connect(mapStateToProps)(Topbar));

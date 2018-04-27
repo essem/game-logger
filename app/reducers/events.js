@@ -23,6 +23,12 @@ const events = (state = initialState, action) => {
         list: state.list.filter(e => e.id !== action.id),
       };
 
+    case 'RESET_EVENTS':
+      return {
+        list: [],
+        hasMore: true,
+      };
+
     default:
       return state;
   }
