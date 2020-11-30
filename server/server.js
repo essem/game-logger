@@ -6,7 +6,6 @@ const morgan = require('koa-morgan');
 const config = require('config');
 const logger = require('./logger');
 const ws = require('./websocket');
-const models = require('./models');
 const auth = require('./auth');
 const events = require('./events');
 const users = require('./users');
