@@ -1,9 +1,8 @@
 module.exports = {
   up(queryInterface, Sequelize) {
     return Promise.resolve()
-    .then(() =>
-      queryInterface.createTable('winners',
-        {
+      .then(() =>
+        queryInterface.createTable('winners', {
           id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
@@ -17,12 +16,10 @@ module.exports = {
           },
           gameId: Sequelize.INTEGER,
           playerId: Sequelize.INTEGER,
-        }
+        }),
       )
-    )
-    .then(() =>
-      queryInterface.createTable('losers',
-        {
+      .then(() =>
+        queryInterface.createTable('losers', {
           id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
@@ -36,22 +33,21 @@ module.exports = {
           },
           gameId: Sequelize.INTEGER,
           playerId: Sequelize.INTEGER,
-        }
+        }),
       )
-    )
-    .then(() =>
-      queryInterface.sequelize.query(
-        'INSERT INTO winners("createdAt", "updatedAt", "gameId", "playerId") ' +
-        'SELECT "createdAt", "updatedAt", id, "winnerId" FROM games'
+      .then(() =>
+        queryInterface.sequelize.query(
+          'INSERT INTO winners("createdAt", "updatedAt", "gameId", "playerId") ' +
+            'SELECT "createdAt", "updatedAt", id, "winnerId" FROM games',
+        ),
       )
-    )
-    .then(() =>
-      queryInterface.sequelize.query(
-        'INSERT INTO losers("createdAt", "updatedAt", "gameId", "playerId") ' +
-        'SELECT "createdAt", "updatedAt", id, "loserId" FROM games'
+      .then(() =>
+        queryInterface.sequelize.query(
+          'INSERT INTO losers("createdAt", "updatedAt", "gameId", "playerId") ' +
+            'SELECT "createdAt", "updatedAt", id, "loserId" FROM games',
+        ),
       )
-    )
-    .then(() => queryInterface.removeColumn('games', 'winnerId'))
-    .then(() => queryInterface.removeColumn('games', 'loserId'));
+      .then(() => queryInterface.removeColumn('games', 'winnerId'))
+      .then(() => queryInterface.removeColumn('games', 'loserId'));
   },
 };

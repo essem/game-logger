@@ -7,7 +7,9 @@ function handleWatch(socket, eventId) {
   if (socket.watchEventId) {
     const watchers = eventWatchers.get(socket.watchEventId);
     watchers.delete(socket);
-    logger.info(`websocket:${socket.remoteAddress}:unwatch:${socket.watchEventId}`);
+    logger.info(
+      `websocket:${socket.remoteAddress}:unwatch:${socket.watchEventId}`,
+    );
   }
 
   let watchers = eventWatchers.get(eventId);
@@ -29,11 +31,15 @@ function handleMessage(socket, utf8Data) {
         handleWatch(socket, message.eventId);
         break;
       default:
-        logger.warn(`websocket:${socket.remoteAddress}:invalid message type:${utf8Data}`);
+        logger.warn(
+          `websocket:${socket.remoteAddress}:invalid message type:${utf8Data}`,
+        );
         socket.drop();
     }
   } catch (e) {
-    logger.warn(`websocket:${socket.remoteAddress}:failed to handle message:${utf8Data}`);
+    logger.warn(
+      `websocket:${socket.remoteAddress}:failed to handle message:${utf8Data}`,
+    );
     logger.warn(e);
     socket.drop();
   }
@@ -43,7 +49,9 @@ function handleClose(socket, reasonCode, description) {
   if (socket.watchEventId) {
     const watchers = eventWatchers.get(socket.watchEventId);
     watchers.delete(socket);
-    logger.info(`websocket:${socket.remoteAddress}:unwatch:${socket.watchEventId}`);
+    logger.info(
+      `websocket:${socket.remoteAddress}:unwatch:${socket.watchEventId}`,
+    );
   }
 
   logger.info(`websocket:${socket.remoteAddress}:close`);

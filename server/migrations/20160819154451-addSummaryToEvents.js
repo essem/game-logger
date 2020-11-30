@@ -1,9 +1,5 @@
 module.exports = {
   up(queryInterface, Sequelize) {
-    return queryInterface.addColumn(
-      'events',
-      'summary',
-      Sequelize.STRING
-    );
+    return queryInterface.addColumn('events', 'summary', Sequelize.STRING);
   },
 };

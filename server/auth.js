@@ -9,8 +9,12 @@ async function authenticate(account, password) {
       $and: [
         { name: account },
         models.sequelize.where(
-          models.sequelize.fn('crypt', password, models.sequelize.col('password')),
-          models.sequelize.col('password')
+          models.sequelize.fn(
+            'crypt',
+            password,
+            models.sequelize.col('password'),
+          ),
+          models.sequelize.col('password'),
         ),
       ],
     },
@@ -31,25 +35,27 @@ function init(app) {
     await next();
   });
 
-  app.use(route.post('/api/login', async (ctx) => {
-    const req = ctx.request.body;
-    const user = await authenticate(req.account, req.password);
-    if (!user) {
-      ctx.body = JSON.stringify({
-        token: null,
+  app.use(
+    route.post('/api/login', async (ctx) => {
+      const req = ctx.request.body;
+      const user = await authenticate(req.account, req.password);
+      if (!user) {
+        ctx.body = JSON.stringify({
+          token: null,
+        });
+        return;
+      }
+
+      const info = { account: user.name, admin: user.admin };
+      const token = jwt.sign(info, config.auth.secret, {
+        expiresIn: '24h',
       });
-      return;
-    }
 
-    const info = { account: user.name, admin: user.admin };
-    const token = jwt.sign(info, config.auth.secret, {
-      expiresIn: '24h',
-    });
-
-    ctx.body = JSON.stringify({
-      token,
-    });
-  }));
+      ctx.body = JSON.stringify({
+        token,
+      });
+    }),
+  );
 }
 
 module.exports = init;

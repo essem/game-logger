@@ -1,9 +1,8 @@
 module.exports = {
   up(queryInterface, Sequelize) {
     return Promise.resolve()
-    .then(() =>
-      queryInterface.createTable('events',
-        {
+      .then(() =>
+        queryInterface.createTable('events', {
           id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
@@ -12,12 +11,10 @@ module.exports = {
           name: Sequelize.STRING,
           createdAt: Sequelize.DATE,
           updatedAt: Sequelize.DATE,
-        }
+        }),
       )
-    )
-    .then(() =>
-      queryInterface.createTable('games',
-        {
+      .then(() =>
+        queryInterface.createTable('games', {
           id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
@@ -28,12 +25,10 @@ module.exports = {
           loserId: Sequelize.INTEGER,
           createdAt: Sequelize.DATE,
           updatedAt: Sequelize.DATE,
-        }
+        }),
       )
-    )
-    .then(() =>
-      queryInterface.createTable('players',
-        {
+      .then(() =>
+        queryInterface.createTable('players', {
           id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
@@ -43,8 +38,7 @@ module.exports = {
           eventId: Sequelize.INTEGER,
           createdAt: Sequelize.DATE,
           updatedAt: Sequelize.DATE,
-        }
-      )
-    );
+        }),
+      );
   },
 };
