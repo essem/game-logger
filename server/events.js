@@ -4,6 +4,8 @@ const models = require('./models');
 const websocket = require('./websocket');
 const logger = require('./logger');
 
+const { Op } = models.Sequelize;
+
 function init(app) {
   app.use(
     route.get('/api/events', async (ctx) => {
@@ -17,12 +19,12 @@ function init(app) {
 
       if (ctx.query.createdAt && ctx.query.id) {
         options.where = {
-          $or: [
-            { createdAt: { lt: ctx.query.createdAt } },
+          [Op.or]: [
+            { createdAt: { [Op.lt]: ctx.query.createdAt } },
             {
-              $and: [
+              [Op.and]: [
                 { createdAt: ctx.query.createdAt },
-                { id: { lt: ctx.query.id } },
+                { id: { [Op.lt]: ctx.query.id } },
               ],
             },
           ],

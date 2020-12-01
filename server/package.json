@@ -7,7 +7,7 @@
     "start": "env NODE_ENV=production node index.js",
     "migrate": "sequelize db:migrate --url 'postgres://gameLogger:gameLogger@localhost/gameLogger'",
     "prettier": "prettier --check .",
-    "eslint": "eslint --ext .js --ext .jsx .",
+    "eslint": "eslint --ext .js .",
     "watch": "nodemon --inspect=0.0.0.0:9229 index.js"
   },
   "author": "essem",

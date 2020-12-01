@@ -3,10 +3,12 @@ const config = require('config');
 const jwt = require('jsonwebtoken');
 const models = require('./models');
 
+const { Op } = models.Sequelize;
+
 async function authenticate(account, password) {
   const user = await models.user.findOne({
     where: {
-      $and: [
+      [Op.and]: [
         { name: account },
         models.sequelize.where(
           models.sequelize.fn(

@@ -3,6 +3,8 @@ const moment = require('moment');
 const route = require('koa-route');
 const models = require('./models');
 
+const { Op } = models.Sequelize;
+
 function init(app) {
   app.use(
     route.get('/api/stats', async (ctx) => {
@@ -24,27 +26,27 @@ function init(app) {
       const events = await models.event.findAll({
         include: {
           model: models.game,
-          include: [
-            {
-              model: models.winner,
-              include: {
-                model: models.player,
-                include: models.user,
-              },
-            },
-            {
-              model: models.loser,
-              include: {
-                model: models.player,
-                include: models.user,
-              },
-            },
-          ],
+          // include: [
+          //   {
+          //     model: models.winner,
+          //     include: {
+          //       model: models.player,
+          //       include: models.user,
+          //     },
+          //   },
+          //   {
+          //     model: models.loser,
+          //     include: {
+          //       model: models.player,
+          //       include: models.user,
+          //     },
+          //   },
+          // ],
         },
         where: {
           createdAt: {
-            $gte: beginDate.format('YYYY-MM-01'),
-            $lt: endDate.format('YYYY-MM-01'),
+            [Op.gte]: beginDate.format('YYYY-MM-01'),
+            [Op.lt]: endDate.format('YYYY-MM-01'),
           },
         },
       });
