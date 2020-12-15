@@ -1,9 +1,9 @@
-FROM node:8
+FROM node:12
 
-RUN mkdir /src
-WORKDIR /src
-ADD package.json /src/package.json
+RUN mkdir /app
+WORKDIR /app
+ADD package.json /app/package.json
 RUN npm install
-ADD . /src
+ADD . /app
 
 CMD ["npm", "start"]

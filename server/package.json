@@ -2,13 +2,13 @@
   "name": "game-logger-server",
   "version": "1.0.0",
   "description": "Log games and summary",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "env NODE_ENV=production node index.js",
+    "start": "env NODE_ENV=production node src/index.js",
     "migrate": "sequelize db:migrate --url 'postgres://gameLogger:gameLogger@localhost/gameLogger'",
     "prettier": "prettier --check .",
-    "eslint": "eslint --ext .js .",
-    "watch": "nodemon --inspect=0.0.0.0:9229 index.js"
+    "eslint": "eslint src/",
+    "watch": "nodemon --inspect=0.0.0.0:9229 src/index.js"
   },
   "author": "essem",
   "license": "ISC",
