@@ -1,202 +1,187 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import { connect } from 'react-redux';
-import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
-import { X } from 'react-bootstrap-icons';
-import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import {
+  Container,
+  Paper,
+  Box,
+  Chip,
+  Button,
+  IconButton,
+} from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
 import NewGame from './NewGame';
 import Confirm from './Confirm';
 import http from '../http';
 
-class Games extends React.Component {
-  static propTypes = {
-    event: PropTypes.object.isRequired,
-    players: PropTypes.array.isRequired,
-    games: PropTypes.array.isRequired,
+export default function Games({ players, games }) {
+  const event = useSelector((state) => state.event);
+  const [showNewGameModal, setShowNewGameModal] = useState({ show: false });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({ show: false });
+
+  const handleNewGame = (options) => {
+    setShowNewGameModal({ show: true, ...options });
   };
 
-  state = {
-    showNewGameModal: { show: false },
-    showDeleteConfirm: false,
+  const handleCreateGame = (winners, losers) => {
+    setShowNewGameModal({ show: false });
+
+    http
+      .post(`/api/events/${event.id}/games`, { winners, losers })
+      .catch(() => {});
   };
 
-  handleNewGame = (options) => {
-    this.setState({ showNewGameModal: { show: true, ...options } });
-  }
-
-  handleCreateGame = (winners, losers) => {
-    this.setState({ showNewGameModal: { show: false } });
-
-    http.post(`/api/events/${this.props.event.id}/games`,
-      { winners, losers })
-    .catch(() => {});
-  }
-
-  handleCloseNewGameModal = () => {
-    this.setState({ showNewGameModal: { show: false } });
-  }
-
-  handleDelete = (gameId) => {
-    this.setState({ showDeleteConfirm: true, deleteGameId: gameId });
+  const handleCloseNewGameModal = () => {
+    setShowNewGameModal({ show: false });
   };
 
-  handleDeleteGame = () => {
-    const gameId = this.state.deleteGameId;
+  const handleDelete = (gameId) => {
+    setShowDeleteConfirm({ show: true, gameId });
+  };
 
-    this.setState({ showDeleteConfirm: false, deleteGameId: null });
+  const handleDeleteGame = () => {
+    const gameId = showDeleteConfirm.gameId;
+    setShowDeleteConfirm({ show: false });
 
-    http.delete(`/api/events/${this.props.event.id}/games/${gameId}`)
-    .catch(() => {});
-  }
+    http.delete(`/api/events/${event.id}/games/${gameId}`).catch(() => {});
+  };
 
-  handleCloseDeleteConfirm = () => {
-    this.setState({ showDeleteConfirm: false, deleteGameId: null });
-  }
+  const handleCloseDeleteConfirm = () => {
+    setShowDeleteConfirm({ show: false });
+  };
 
-  renderGameTitle(game) {
-    const players = this.props.players;
-    const winners = game.winners.map(id => players.find(player => player.id === id).user.name);
-    const losers = game.losers.map(id => players.find(player => player.id === id).user.name);
+  const renderGameTitle = (game) => {
+    const players = event.players;
+    const winners = game.winners.map(
+      (id) => players.find((player) => player.id === id).user.name,
+    );
+    const losers = game.losers.map(
+      (id) => players.find((player) => player.id === id).user.name,
+    );
 
     return `${winners.join(', ')} vs. ${losers.join(', ')}`;
-  }
+  };
 
-  renderNewGameModal() {
-    if (!this.state.showNewGameModal.show) {
+  const renderNewGameModal = () => {
+    if (!showNewGameModal.show) {
       return '';
     }
 
     return (
       <NewGame
-        team={this.state.showNewGameModal.team}
-        onCreate={this.handleCreateGame}
-        onClose={this.handleCloseNewGameModal}
+        team={showNewGameModal.team}
+        onCreate={handleCreateGame}
+        onClose={handleCloseNewGameModal}
       />
     );
-  }
+  };
 
-  renderDeleteConfirm() {
-    if (!this.state.showDeleteConfirm) {
+  const renderDeleteConfirm = () => {
+    if (!showDeleteConfirm.show) {
       return '';
     }
 
-    const game = this.props.games.find(g => g.id === this.state.deleteGameId);
+    const game = event.games.find((g) => g.id === showDeleteConfirm.gameId);
 
     return (
       <Confirm
-        message={`Delete the game '${this.renderGameTitle(game)}'?`}
+        message={`Delete the game '${renderGameTitle(game)}'?`}
         okayText="Delete"
-        okayStyle="danger"
-        onOkay={this.handleDeleteGame}
-        onCancel={this.handleCloseDeleteConfirm}
+        okayColor="secondary"
+        onOkay={handleDeleteGame}
+        onCancel={handleCloseDeleteConfirm}
       />
     );
-  }
+  };
 
-  renderNewGame() {
-    if (this.props.event.finished) {
+  const renderNewGame = () => {
+    if (event.finished) {
       return '';
     }
 
     return (
-      <Row style={{ marginBottom: '20px' }}>
-        <Col xs={6}>
-          <Button
-            bsStyle="primary"
-            style={{ width: '100%', height: '50px' }}
-            onClick={() => this.handleNewGame({ team: false })}
-          >
-            New Single Game
-          </Button>
-        </Col>
-        <Col xs={6}>
-          <Button
-            bsStyle="primary"
-            style={{ width: '100%', height: '50px' }}
-            onClick={() => this.handleNewGame({ team: true })}
-          >
-            New Team Game
-          </Button>
-        </Col>
-        {this.renderNewGameModal()}
-        {this.renderDeleteConfirm()}
-      </Row>
+      <>
+        <br />
+        <Box display="flex" style={{ marginBottom: '20px' }}>
+          <Box flexGrow={1}>
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ width: '100%', height: '50px' }}
+              onClick={() => handleNewGame({ team: false })}
+            >
+              New Single Game
+            </Button>
+          </Box>
+          <Box width="20px" />
+          <Box flexGrow={1}>
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ width: '100%', height: '50px' }}
+              onClick={() => handleNewGame({ team: true })}
+            >
+              New Team Game
+            </Button>
+          </Box>
+          {renderNewGameModal()}
+          {renderDeleteConfirm()}
+        </Box>
+      </>
     );
-  }
+  };
 
-  renderGame(game) {
-    const { event } = this.props;
-
+  const renderGame = (game) => {
     let deleteButton = '';
     if (!event.finished) {
-      const style = {
-        color: '#ccc',
-        background: 'none',
-        border: 'none',
-        padding: 0,
-      };
-
       deleteButton = (
-        <button
-          className="pull-right"
-          style={style}
-          onClick={() => this.handleDelete(game.id)}
+        <IconButton
+          onClick={() => handleDelete(game.id)}
+          style={{ margin: '-20px -10px -20px 0px' }}
         >
-          <X />
-        </button>
+          <DeleteIcon />
+        </IconButton>
       );
     }
 
     return (
-      <Card
-        key={game.id}
-        style={{ textAlign: 'center' }}
+      <React.Fragment key={game.id}>
+        <Paper style={{ textAlign: 'center' }}>
+          <Box display="flex" alignItems="center" p={3}>
+            <Box flexGrow={1}>
+              <Chip size="small" label="win" /> {renderGameTitle(game)}{' '}
+              <Chip size="small" label="lose" />
+            </Box>
+            {deleteButton}
+          </Box>
+        </Paper>
+        <br />
+      </React.Fragment>
+    );
+  };
+
+  const sortedGames = event.games.sort((a, b) => b.id - a.id);
+
+  return (
+    <Container>
+      {renderNewGame()}
+      <Box
+        style={{
+          textAlign: 'center',
+          margin: '20px',
+          fontSize: '12px',
+          fontStyle: 'italic',
+        }}
       >
-        <Badge>win</Badge> {this.renderGameTitle(game)} <Badge>lose</Badge>
-        {deleteButton}
-      </Card>
-    );
-  }
-
-  render() {
-    const games = this.props.games.sort((a, b) => b.id - a.id);
-
-    return (
-      <Container>
-        {this.renderNewGame()}
-        <Row>
-          <Col
-            xs={12}
-            style={{
-              textAlign: 'center',
-              marginBottom: '10px',
-              fontSize: '12px',
-              fontStyle: 'italic',
-            }}
-          >
-          Total {games.length} games
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={12}>
-            <ReactCSSTransitionGroup
-              transitionName="list"
-              transitionEnterTimeout={600}
-              transitionLeaveTimeout={600}
-            >
-              {games.map(game => this.renderGame(game))}
-            </ReactCSSTransitionGroup>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
+        Total {sortedGames.length} games
+      </Box>
+      <ReactCSSTransitionGroup
+        transitionName="list"
+        transitionEnterTimeout={600}
+        transitionLeaveTimeout={600}
+      >
+        {sortedGames.map((game) => renderGame(game))}
+      </ReactCSSTransitionGroup>
+    </Container>
+  );
 }
-
-const mapStateToProps = state => ({
-  event: state.event,
-  players: state.event.players,
-  games: state.event.games,
-});
-
-export default connect(mapStateToProps)(Games);

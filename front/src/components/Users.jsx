@@ -1,104 +1,95 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Container, Row, Col, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import Container from '@material-ui/core/Container';
+import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
+import { useDispatch, useSelector } from 'react-redux';
 import NewUser from './NewUser';
 import http from '../http';
 
-class Users extends React.Component {
-  static propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    admin: PropTypes.bool,
-    users: PropTypes.array.isRequired,
+export default function Users() {
+  const [showNewUserModal, setShowNewUserModal] = useState(false);
+  const admin = useSelector((state) => state.app.admin);
+  const users = useSelector((state) => state.users);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    http
+      .get('/api/users')
+      .then((users) => {
+        dispatch({
+          type: 'INIT_USERS',
+          users,
+        });
+      })
+      .catch(() => {});
+  }, [dispatch]);
+
+  const handleNewUser = () => {
+    setShowNewUserModal(true);
   };
 
-  static defaultProps = {
-    admin: false,
-  };
-
-  state = {
-    showNewUserModal: false,
-  };
-
-  componentDidMount() {
-    http.get('/api/users')
-    .then((users) => {
-      this.props.dispatch({
-        type: 'INIT_USERS',
-        users,
-      });
-    })
-    .catch(() => {});
-  }
-
-  handleNewUser = () => {
-    this.setState({ showNewUserModal: true });
-  }
-
-  handleCreateUser = (name, password) => {
+  const handleCreateUser = (name, password) => {
     if (!name.trim()) {
       return;
     }
 
-    this.setState({ showNewUserModal: false });
+    setShowNewUserModal(false);
 
-    http.post('/api/users', { name, password })
-    .then((res) => {
-      this.props.dispatch({
-        type: 'CREATE_USER',
-        user: res,
-      });
-    })
-    .catch(() => {});
-  }
+    http
+      .post('/api/users', { name, password })
+      .then((res) => {
+        dispatch({
+          type: 'CREATE_USER',
+          user: res,
+        });
+      })
+      .catch(() => {});
+  };
 
-  handleCloseNewUserModal = () => {
-    this.setState({ showNewUserModal: false });
-  }
+  const handleCloseNewUserModal = () => {
+    setShowNewUserModal(false);
+  };
 
-  renderNewUserModal() {
-    if (!this.state.showNewUserModal) {
+  const renderNewUserModal = () => {
+    if (!showNewUserModal) {
       return '';
     }
 
     return (
-      <NewUser
-        onCreate={this.handleCreateUser}
-        onClose={this.handleCloseNewUserModal}
-      />
+      <NewUser onCreate={handleCreateUser} onClose={handleCloseNewUserModal} />
     );
-  }
+  };
 
-  renderNewUser() {
-    if (!this.props.admin) {
+  const renderNewUser = () => {
+    if (!admin) {
       return '';
     }
 
     return (
-      <Row style={{ marginBottom: '20px' }}>
-        <Col xs={12}>
-          <Button
-            bsStyle="primary"
-            style={{ width: '100%', height: '50px' }}
-            onClick={this.handleNewUser}
-          >
-            New User
-          </Button>
-          {this.renderNewUserModal()}
-        </Col>
-      </Row>
+      <Grid item xs={12} style={{ marginBottom: '20px' }}>
+        <Button
+          variant="contained"
+          color="primary"
+          style={{ width: '100%', height: '50px' }}
+          onClick={handleNewUser}
+        >
+          New User
+        </Button>
+        {renderNewUserModal()}
+      </Grid>
     );
-  }
+  };
 
-  render() {
-    const users = this.props.users.sort((a, b) => a.name.localeCompare(b.name));
+  const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
 
-    return (
-      <Container>
-        {this.renderNewUser()}
-        <Row>
-          <Col
+  return (
+    <Container>
+      <Grid container>
+        {renderNewUser()}
+        <Grid container item xs={12}>
+          <Grid
+            item
             xs={12}
             style={{
               textAlign: 'center',
@@ -107,30 +98,30 @@ class Users extends React.Component {
               fontStyle: 'italic',
             }}
           >
-          Total {users.length} users
-          </Col>
-        </Row>
-        {users.map(user => (
-          <Row key={user.id} style={{ marginBottom: '10px' }}>
-            <Col xs={12}>
-              <Link
+            Total {sortedUsers.length} users
+          </Grid>
+        </Grid>
+        {sortedUsers.map((user) => (
+          <Grid
+            container
+            item
+            xs={12}
+            key={user.id}
+            style={{ marginBottom: '10px' }}
+          >
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
                 to={`/users/${user.id}`}
-                className="btn btn-default"
+                component={RouterLink}
                 style={{ width: '100%', textAlign: 'left' }}
               >
                 {user.name}
-              </Link>
-            </Col>
-          </Row>
+              </Button>
+            </Grid>
+          </Grid>
         ))}
-      </Container>
-    );
-  }
+      </Grid>
+    </Container>
+  );
 }
-
-const mapStateToProps = state => ({
-  admin: state.app.admin,
-  users: state.users,
-});
-
-export default connect(mapStateToProps)(Users);

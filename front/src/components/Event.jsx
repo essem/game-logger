@@ -1,65 +1,38 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Container, Row, Col, Card, Badge, ButtonGroup, Button, ButtonToolbar } from 'react-bootstrap';
-import { withRouter, Route, NavLink } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import _ from 'lodash';
+import React, { useEffect, useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import Container from '@material-ui/core/Container';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Paper from '@material-ui/core/Paper';
+import Box from '@material-ui/core/Box';
+import { Typography, Button, Chip } from '@material-ui/core';
+import {
+  useHistory,
+  useLocation,
+  Route,
+  Link as RouterLink,
+} from 'react-router-dom';
 import Confirm from './Confirm';
 import http from '../http';
 import Players from './Players';
 import Games from './Games';
 import Summary from './Summary';
 
-class Event extends React.Component {
-  static propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    history: PropTypes.object.isRequired,
-    admin: PropTypes.bool,
-    event: PropTypes.object,
-    match: PropTypes.object.isRequired,
-  };
+export default function Event({ match }) {
+  const admin = useSelector((state) => state.app.admin);
+  const event = useSelector((state) => state.event);
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [wsState, setWsState] = useState('offline');
+  const socket = useRef(null);
+  const wsReconnectTimer = useRef(null);
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const location = useLocation();
 
-  static defaultProps = {
-    admin: false,
-    event: undefined,
-  };
-
-  state = {
-    showFinishConfirm: false,
-    showDeleteConfirm: false,
-    wsState: 'offline',
-  };
-
-  componentDidMount() {
-    const eventId = parseInt(this.props.match.params.id, 10);
-    http.get(`/api/events/${eventId}`)
-    .then((event) => {
-      this.props.dispatch({
-        type: 'INIT_EVENT',
-        event,
-      });
-
-      if (!event.finished) {
-        this.wsConnect();
-      }
-    })
-    .catch(() => {});
-  }
-
-  componentWillUnmount() {
-    if (this.socket) {
-      this.socket.onclose = () => {};
-      this.socket.close();
-    }
-    if (this.wsReconnectTimer) {
-      clearTimeout(this.wsReconnectTimer);
-    }
-    this.props.dispatch({
-      type: 'CLEAR_EVENT',
-    });
-  }
-
-  wsConnect = () => {
-    const eventId = parseInt(this.props.match.params.id, 10);
+  const wsConnect = () => {
+    const eventId = parseInt(match.params.id, 10);
     let wsHost = process.env.REACT_APP_WS_HOST;
     if (wsHost === '') {
       const loc = window.location;
@@ -67,137 +40,169 @@ class Event extends React.Component {
       wsHost = `${protocol}//${loc.host}${process.env.REACT_APP_SUB_URI}/`;
     }
 
-    this.socket = new WebSocket(wsHost, 'watch');
-    this.socket.onopen = () => {
-      this.setState({ wsState: 'online' });
-      this.socket.send(JSON.stringify({ type: 'watch', eventId }));
-      this.socket.onmessage = e => this.handleSocketMessage(e.data);
-      this.socket.onclose = () => {
-        this.setState({ wsState: 'offline' }, () => this.wsReconnect());
+    socket.current = new WebSocket(wsHost, 'watch');
+    socket.current.onopen = () => {
+      setWsState('online');
+      socket.current.send(JSON.stringify({ type: 'watch', eventId }));
+      socket.current.onmessage = (e) => handleSocketMessage(e.data);
+      socket.current.onclose = () => {
+        this.setState({ wsState: 'offline' }, () => wsReconnect());
       };
     };
   };
 
-  wsReconnect = () => {
-    if (this.state.wsState === 'online') {
+  const wsReconnect = () => {
+    if (wsState === 'online') {
       return;
     }
 
-    this.wsReconnectTimer = setTimeout(this.wsReconnect, 2000);
-    this.wsConnect();
+    wsReconnectTimer.current = setTimeout(wsReconnect, 2000);
+    wsConnect();
   };
 
-  wsClose = () => {
-    this.socket.onclose = () => {};
-    this.socket.close();
+  const wsClose = () => {
+    socket.current.onclose = () => {};
+    socket.current.close();
   };
 
-  handleSocketMessage(data) {
+  const handleSocketMessage = (data) => {
     const message = JSON.parse(data);
     switch (message.type) {
       case 'createGame':
-        this.props.dispatch({
+        dispatch({
           type: 'CREATE_GAME',
           game: message.game,
         });
         break;
       case 'deleteGame':
-        this.props.dispatch({
+        dispatch({
           type: 'DELETE_GAME',
           id: message.gameId,
         });
         break;
       case 'createPlayers':
-        this.props.dispatch({
+        dispatch({
           type: 'CREATE_PLAYERS',
           players: message.players,
         });
         break;
       case 'deletePlayer':
-        this.props.dispatch({
+        dispatch({
           type: 'DELETE_PLAYER',
           id: message.playerId,
         });
         break;
       case 'finish':
-        this.props.dispatch({
+        dispatch({
           type: 'FINISH_EVENT',
         });
-        this.wsClose();
+        wsClose();
         break;
       default:
     }
-  }
-
-  handleConfirmFinish = () => {
-    this.setState({ showFinishConfirm: true });
   };
 
-  handleFinish = () => {
-    this.setState({ showFinishConfirm: false });
+  useEffect(() => {
+    const eventId = parseInt(match.params.id, 10);
+    http
+      .get(`/api/events/${eventId}`)
+      .then((event) => {
+        dispatch({
+          type: 'INIT_EVENT',
+          event,
+        });
 
-    http.put(`/api/events/${this.props.event.id}/finish`)
-    .catch(() => {});
-  }
-
-  handleCloseFinishConfirm = () => {
-    this.setState({ showFinishConfirm: false });
-  }
-
-  handleReopen = () => {
-    http.put(`/api/events/${this.props.event.id}/reopen`)
-    .then(() => {
-      this.props.dispatch({
-        type: 'REOPEN_EVENT',
+        if (!event.finished) {
+          wsConnect();
+        }
+      })
+      .catch(() => {});
+    return () => {
+      if (socket.current) {
+        socket.current.onclose = () => {};
+        socket.current.close();
+      }
+      if (wsReconnectTimer.current) {
+        clearTimeout(wsReconnectTimer.current);
+      }
+      dispatch({
+        type: 'CLEAR_EVENT',
       });
-      this.wsConnect();
-    })
-    .catch(() => {});
-  }
+    };
+    // TODO: remove eslint-disable-line
+  }, [dispatch, match]); // eslint-disable-line
 
-  handleConfirmDelete = () => {
-    this.setState({ showDeleteConfirm: true });
+  const handleConfirmFinish = () => {
+    setShowFinishConfirm(true);
   };
 
-  handleDelete = () => {
-    this.setState({ showDeleteConfirm: false });
+  const handleFinish = () => {
+    setShowFinishConfirm(false);
 
-    http.delete(`/api/events/${this.props.event.id}`)
-    .then((res) => {
-      this.props.dispatch({
-        type: 'DELETE_EVENT',
-        id: res.id,
-      });
-      this.props.history.push('/events');
-    })
-    .catch(() => {});
-  }
+    http.put(`/api/events/${event.id}/finish`).catch(() => {});
+  };
 
-  handleCloseDeleteConfirm = () => {
-    this.setState({ showDeleteConfirm: false });
-  }
+  const handleCloseFinishConfirm = () => {
+    setShowFinishConfirm(false);
+  };
 
-  renderWsBadge() {
-    if (this.props.event.finished) {
+  const handleReopen = () => {
+    http
+      .put(`/api/events/${event.id}/reopen`)
+      .then(() => {
+        dispatch({
+          type: 'REOPEN_EVENT',
+        });
+        wsConnect();
+      })
+      .catch(() => {});
+  };
+
+  const handleConfirmDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDelete = () => {
+    setShowDeleteConfirm(false);
+
+    http
+      .delete(`/api/events/${event.id}`)
+      .then((res) => {
+        dispatch({
+          type: 'DELETE_EVENT',
+          id: res.id,
+        });
+        history.push('/events');
+      })
+      .catch(() => {});
+  };
+
+  const handleCloseDeleteConfirm = () => {
+    setShowDeleteConfirm(false);
+  };
+
+  const renderWsBadge = () => {
+    if (event.finished) {
       return '';
     }
 
-    const wsStateBgColor = this.state.wsState === 'online' ? 'green' : 'red';
+    const wsStateBgColor = wsState === 'online' ? 'green' : 'red';
 
     return (
-      <Badge
+      <Chip
+        size="small"
         style={{
-          marginLeft: '10px',
+          marginRight: '10px',
           backgroundColor: wsStateBgColor,
+          color: 'white',
         }}
-      >
-        {this.state.wsState}
-      </Badge>
+        label={wsState}
+      />
     );
-  }
+  };
 
-  renderFinishConfirm() {
-    if (!this.state.showFinishConfirm) {
+  const renderFinishConfirm = () => {
+    if (!showFinishConfirm) {
       return '';
     }
 
@@ -205,15 +210,15 @@ class Event extends React.Component {
       <Confirm
         message="Finish the event?"
         okayText="Finish"
-        okayStyle="primary"
-        onOkay={this.handleFinish}
-        onCancel={this.handleCloseFinishConfirm}
+        okayColor="primary"
+        onOkay={handleFinish}
+        onCancel={handleCloseFinishConfirm}
       />
     );
-  }
+  };
 
-  renderDeleteConfirm() {
-    if (!this.state.showDeleteConfirm) {
+  const renderDeleteConfirm = () => {
+    if (!showDeleteConfirm) {
       return '';
     }
 
@@ -221,111 +226,100 @@ class Event extends React.Component {
       <Confirm
         message="Delete the event?"
         okayText="Delete"
-        okayStyle="danger"
-        onOkay={this.handleDelete}
-        onCancel={this.handleCloseDeleteConfirm}
+        okayColor="secondary"
+        onOkay={handleDelete}
+        onCancel={handleCloseDeleteConfirm}
       />
     );
+  };
+
+  if (!event) {
+    return <div />;
   }
 
-  render() {
-    const event = this.props.event;
-    if (!event) {
-      return <div />;
-    }
-
-    let finishButton = '';
-    if (!event.finished) {
-      finishButton = (
+  let finishButton = '';
+  if (!event.finished) {
+    finishButton = (
+      <Button
+        variant="contained"
+        size="small"
+        color="primary"
+        disabled={event.games.length === 0}
+        onClick={handleConfirmFinish}
+      >
+        Finish
+      </Button>
+    );
+  } else if (admin) {
+    finishButton = (
+      <>
         <Button
-          bsStyle="primary"
-          className="pull-right"
-          disabled={this.props.event.games.length === 0}
-          onClick={this.handleConfirmFinish}
+          variant="contained"
+          size="small"
+          color="primary"
+          onClick={handleReopen}
         >
-          Finish
+          Re-open
+        </Button>{' '}
+        <Button
+          variant="contained"
+          size="small"
+          color="secondary"
+          onClick={handleConfirmDelete}
+        >
+          Delete
         </Button>
-      );
-    } else if (this.props.admin) {
-      finishButton = (
-        <ButtonToolbar className="pull-right">
-          <Button
-            bsStyle="primary"
-            onClick={this.handleReopen}
-          >
-            Re-open
-          </Button>
-          <Button
-            bsStyle="danger"
-            onClick={this.handleConfirmDelete}
-          >
-            Delete
-          </Button>
-        </ButtonToolbar>
-      );
-    }
-
-    return (
-      <div>
-        <Container>
-          <Row>
-            <Col xs={12}>
-              <Card
-                style={{
-                  height: '60px',
-                  lineHeight: '30px',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                }}
-              >
-                <span>{event.name}</span>
-                {this.renderWsBadge()}
-                {finishButton}
-                {this.renderFinishConfirm()}
-                {this.renderDeleteConfirm()}
-              </Card>
-            </Col>
-          </Row>
-          <Row>
-            <Col xs={12}>
-              <ButtonGroup justified style={{ height: '50px' }}>
-                <NavLink
-                  to={`/events/${event.id}/players`}
-                  className="btn btn-default"
-                  activeClassName="active"
-                >
-                  Players
-                </NavLink>
-                <NavLink
-                  to={`/events/${event.id}/games`}
-                  className="btn btn-default"
-                  activeClassName="active"
-                >
-                  Games
-                </NavLink>
-                <NavLink
-                  to={`/events/${event.id}/summary`}
-                  className="btn btn-default"
-                  activeClassName="active"
-                >
-                  Summary
-                </NavLink>
-              </ButtonGroup>
-            </Col>
-          </Row>
-        </Container>
-        <br />
-        <Route exact path={`${this.props.match.url}/players`} component={Players} />
-        <Route exact path={`${this.props.match.url}/games`} component={Games} />
-        <Route exact path={`${this.props.match.url}/summary`} component={Summary} />
-      </div>
+      </>
     );
   }
+
+  // TODO: Remove flickering on switching tabs
+  const lastPath = _.last(location.pathname.split('/'));
+  const tabIndex = ['summary', 'players', 'games'].indexOf(lastPath);
+
+  return (
+    <div>
+      <Container>
+        <Paper>
+          <Box display="flex" alignItems="center" p={3}>
+            <Box flexGrow={1}>
+              <Typography variant="h6">{event.name}</Typography>
+            </Box>
+            <Box>{renderWsBadge()}</Box>
+            <Box>{finishButton}</Box>
+          </Box>
+        </Paper>
+        {renderFinishConfirm()}
+        {renderDeleteConfirm()}
+        <br />
+        <Paper>
+          <Tabs
+            indicatorColor="primary"
+            textColor="primary"
+            variant="fullWidth"
+            value={tabIndex}
+          >
+            <Tab
+              to={`/events/${event.id}/summary`}
+              component={RouterLink}
+              label="Summary"
+            />
+            <Tab
+              to={`/events/${event.id}/players`}
+              component={RouterLink}
+              label="Player"
+            />
+            <Tab
+              to={`/events/${event.id}/games`}
+              component={RouterLink}
+              label="Games"
+            />
+          </Tabs>
+        </Paper>
+      </Container>
+      <Route exact path={`${match.url}/players`} component={Players} />
+      <Route exact path={`${match.url}/games`} component={Games} />
+      <Route exact path={`${match.url}/summary`} component={Summary} />
+    </div>
+  );
 }
-
-const mapStateToProps = state => ({
-  admin: state.app.admin,
-  event: state.event,
-});
-
-export default withRouter(connect(mapStateToProps)(Event));

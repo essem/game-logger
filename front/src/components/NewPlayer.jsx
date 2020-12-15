@@ -1,94 +1,79 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Button, Modal, Row, Col } from 'react-bootstrap';
-import PropTypes from 'prop-types';
 import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from '@material-ui/core';
 import http from '../http';
 
-class NewPlayer extends React.Component {
-  static propTypes = {
-    players: PropTypes.array.isRequired,
-    onCreate: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
-  };
+export default function NewPlayer({ onCreate, onClose }) {
+  const players = useSelector((state) => state.event.players);
+  const [users, setUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState(new Set());
 
-  state = {
-    users: [],
-    selectedUsers: new Set(),
-  }
+  useEffect(() => {
+    http
+      .get('/api/users')
+      .then((users) => {
+        setUsers(users);
+      })
+      .catch(() => {});
+  }, []);
 
-  componentDidMount() {
-    http.get('/api/users')
-    .then((users) => {
-      this.setState({ users });
-    })
-    .catch(() => {});
-  }
-
-  handleClickUser = (userId) => {
-    const selectedUsers = new Set(this.state.selectedUsers);
-    if (this.state.selectedUsers.has(userId)) {
-      selectedUsers.delete(userId);
+  const handleClickUser = (userId) => {
+    const newSelectedUsers = new Set(selectedUsers);
+    if (newSelectedUsers.has(userId)) {
+      newSelectedUsers.delete(userId);
     } else {
-      selectedUsers.add(userId);
+      newSelectedUsers.add(userId);
     }
-    this.setState({ selectedUsers });
+    setSelectedUsers(newSelectedUsers);
   };
 
-  handleCreate = (e) => {
+  const handleCreate = (e) => {
     e.preventDefault();
-    this.props.onCreate(Array.from(this.state.selectedUsers));
+    onCreate(Array.from(selectedUsers));
   };
 
-  renderUser(user) {
+  const renderUser = (user) => {
     return (
-      <Col key={user.id} xs={4}>
-        <Button
-          style={{ width: '100%', height: '50px', marginBottom: '10px' }}
-          active={this.state.selectedUsers.has(user.id)}
-          onClick={() => this.handleClickUser(user.id)}
-        >
-          {user.name}
+      <Button
+        key={user.id}
+        variant={selectedUsers.has(user.id) ? 'contained' : 'outlined'}
+        color="primary"
+        style={{ margin: '10px' }}
+        onClick={() => handleClickUser(user.id)}
+      >
+        {user.name}
+      </Button>
+    );
+  };
+
+  const filteredUsers = users.filter(
+    (u) => !_.some(players, (p) => p.user.id === u.id),
+  );
+  const sortedUsers = filteredUsers.sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
+
+  return (
+    <Dialog open onClose={onClose}>
+      <DialogTitle>New Player</DialogTitle>
+      <DialogContent>
+        {sortedUsers.map((user) => renderUser(user))}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Cancel
         </Button>
-      </Col>
-    );
-  }
-
-  render() {
-    let users = this.state.users;
-    users = users.filter(u => !_.some(this.props.players, p => p.user.id === u.id));
-    users = users.sort((a, b) => a.name.localeCompare(b.name));
-
-    return (
-      <Modal show onHide={this.props.onClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>New Player</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Row>
-            {users.map(user => this.renderUser(user))}
-          </Row>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            onClick={this.props.onClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            bsStyle="primary"
-            onClick={this.handleCreate}
-          >
-            Create
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  }
+        <Button onClick={handleCreate} color="primary" autoFocus>
+          Create
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }
-
-const mapStateToProps = state => ({
-  players: state.event.players,
-});
-
-export default connect(mapStateToProps)(NewPlayer);

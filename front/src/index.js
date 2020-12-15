@@ -14,8 +14,8 @@ import usersReducer from './reducers/users';
 import userReducer from './reducers/user';
 
 // CSS
-import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
+import 'fontsource-roboto';
 
 // Components
 import Topbar from './components/Topbar';
@@ -41,13 +41,13 @@ const store = createStore(
 http.init(store);
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <BrowserRouter>
-        <Route path="/" component={Topbar} />
-      </BrowserRouter>
-    </Provider>
-  </React.StrictMode>,
+  // <React.StrictMode>
+  <Provider store={store}>
+    <BrowserRouter>
+      <Route path="/" component={Topbar} />
+    </BrowserRouter>
+  </Provider>,
+  // </React.StrictMode>,
   app,
 );
 

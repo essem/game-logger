@@ -1,94 +1,117 @@
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Container, Row, Col, Card, Button, FormGroup,
-  Form, FormControl, Alert } from 'react-bootstrap';
-import PropTypes from 'prop-types';
+import React, { useState, useRef } from 'react';
+import { useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Avatar,
+} from '@material-ui/core';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import { makeStyles } from '@material-ui/core/styles';
 import http from '../http';
 
-class Login extends React.Component {
-  static propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    history: PropTypes.object.isRequired,
-  };
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+    backgroundColor: theme.palette.secondary.main,
+  },
+  form: {
+    width: '100%', // Fix IE 11 issue.
+    marginTop: theme.spacing(1),
+  },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
+  },
+}));
 
-  state = {
-    loginMessage: null,
-  };
+export default function Login() {
+  const dispatch = useDispatch();
+  const [loginMessage, setLoginMessage] = useState(null);
+  const history = useHistory();
+  const accountEl = useRef(null);
+  const passwordEl = useRef(null);
+  const classes = useStyles();
 
-  handleLogin = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-    const account = ReactDOM.findDOMNode(this.account).value;
-    const password = ReactDOM.findDOMNode(this.password).value;
-    http.post('/api/login', { account, password })
-    .then((res) => {
-      if (res.token) {
-        this.props.dispatch({
-          type: 'LOGIN',
-          token: res.token,
-        });
-        this.props.history.push('/');
-      } else {
-        this.setState({ loginMessage: 'Failed to login' });
-      }
-    })
-    .catch(() => {});
+    const account = accountEl.current.value;
+    const password = passwordEl.current.value;
+    http
+      .post('/api/login', { account, password })
+      .then((res) => {
+        if (res.token) {
+          dispatch({
+            type: 'LOGIN',
+            token: res.token,
+          });
+          history.push('/');
+        } else {
+          setLoginMessage('Failed to login');
+        }
+      })
+      .catch(() => {});
   };
 
-  renderAlert() {
-    if (!this.state.loginMessage) {
+  const renderAlert = () => {
+    if (!loginMessage) {
       return '';
     }
 
     return (
-      <Alert bsStyle="danger">
-        {this.state.loginMessage}
-      </Alert>
+      <Typography variant="body2" align="center" color="secondary">
+        {loginMessage}
+      </Typography>
     );
-  }
+  };
 
-  render() {
-    return (
-      <Container>
-        <Row>
-          <Col lg={4} md={4} sm={8} xs={12}>
-            <Card>
-              {this.renderAlert()}
-              <Form onSubmit={this.handleLogin}>
-                <FormGroup>
-                  <Form.Label>Account</Form.Label>
-                  <FormControl
-                    type="text"
-                    autoFocus
-                    ref={(e) => { this.account = e; }}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <Form.Label>Password</Form.Label>
-                  <FormControl
-                    type="password"
-                    ref={(e) => { this.password = e; }}
-                  />
-                </FormGroup>
-                <Button
-                  type="submit"
-                  bsStyle="primary"
-                  onClick={this.handleLogin}
-                >
-                  Login
-                </Button>
-              </Form>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
+  return (
+    <Container component="main" maxWidth="xs">
+      <div className={classes.paper}>
+        <Avatar className={classes.avatar}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Login
+        </Typography>
+        <form className={classes.form} noValidate onSubmit={handleLogin}>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            label="Account"
+            inputRef={accountEl}
+            autoFocus
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            inputRef={passwordEl}
+            label="Password"
+            type="password"
+          />
+          {renderAlert()}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            className={classes.submit}
+          >
+            Sign In
+          </Button>
+        </form>
+      </div>
+    </Container>
+  );
 }
-
-const mapStateToProps = state => ({
-  account: state.app.account,
-});
-
-export default withRouter(connect(mapStateToProps)(Login));

@@ -1,23 +1,16 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Spinner from 'react-spinkit';
-import PropTypes from 'prop-types';
 
-class LoadingSpinner extends React.Component {
-  static propTypes = {
-    loading: PropTypes.bool.isRequired,
-  };
+export default function LoadingSpinner() {
+  const loading = useSelector((state) => state.app.loading);
 
-  render() {
-    if (this.props.loading) {
-      return <div className="loading"><Spinner spinnerName="chasing-dots" noFadeIn /></div>;
-    }
-    return <div />;
+  if (loading) {
+    return (
+      <div className="loading">
+        <Spinner name="chasing-dots" fadeIn="none" />
+      </div>
+    );
   }
+  return <div />;
 }
-
-const mapStateToProps = state => ({
-  loading: state.app.loading,
-});
-
-export default connect(mapStateToProps)(LoadingSpinner);

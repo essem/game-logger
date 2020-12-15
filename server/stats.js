@@ -26,22 +26,22 @@ function init(app) {
       const events = await models.event.findAll({
         include: {
           model: models.game,
-          // include: [
-          //   {
-          //     model: models.winner,
-          //     include: {
-          //       model: models.player,
-          //       include: models.user,
-          //     },
-          //   },
-          //   {
-          //     model: models.loser,
-          //     include: {
-          //       model: models.player,
-          //       include: models.user,
-          //     },
-          //   },
-          // ],
+          include: [
+            {
+              model: models.winner,
+              include: {
+                model: models.player,
+                include: models.user,
+              },
+            },
+            {
+              model: models.loser,
+              include: {
+                model: models.player,
+                include: models.user,
+              },
+            },
+          ],
         },
         where: {
           createdAt: {

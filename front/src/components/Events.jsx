@@ -1,176 +1,178 @@
 import _ from 'lodash';
-import React from 'react';
-import { connect } from 'react-redux';
-import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
-import { withRouter, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  Container,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+} from '@material-ui/core';
+import { useHistory, Link as RouterLink } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
-import PropTypes from 'prop-types';
 import nl2br from 'react-nl2br';
 import NewEvent from './NewEvent';
 import http from '../http';
 
-class Events extends React.Component {
-  static propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    history: PropTypes.object.isRequired,
-    events: PropTypes.array.isRequired,
-    hasMore: PropTypes.bool.isRequired,
-  };
+export default function Events() {
+  const events = useSelector((state) => state.events.list);
+  const hasMore = useSelector((state) => state.events.hasMore);
+  const [showNewEventModal, setShowNewEventModal] = useState(false);
+  const dispatch = useDispatch();
+  const history = useHistory();
 
-  static renderSummary(event) {
+  useEffect(() => {
+    return () => dispatch({ type: 'RESET_EVENTS' });
+  }, [dispatch]);
+
+  const renderSummary = (event) => {
     if (!event.finished) {
-      return <span>Event is in progress...<br /></span>;
+      return <i>Event is in progress...</i>;
     }
 
     return nl2br(event.summary);
-  }
+  };
 
-  static renderEvent(event) {
+  const handleLoadMore = () => {
+    let params = '';
+    if (events.length > 0) {
+      const last = _.last(events);
+      params = `?createdAt=${last.createdAt}&id=${last.id}`;
+    }
+    http
+      .get(`/api/events${params}`)
+      .then((events) => {
+        dispatch({
+          type: 'LOAD_EVENTS',
+          list: events.list,
+          hasMore: events.list.length > 0,
+        });
+      })
+      .catch(() => {});
+  };
+
+  const handleNewEvent = () => {
+    setShowNewEventModal(true);
+  };
+
+  const handleCreateEvent = (name) => {
+    if (!name.trim()) {
+      return;
+    }
+
+    setShowNewEventModal(false);
+
+    http
+      .post('/api/events', { name })
+      .then((res) => {
+        dispatch({
+          type: 'CREATE_EVENT',
+          event: res,
+        });
+        history.push(`/events/${res.id}/players`);
+      })
+      .catch(() => {});
+  };
+
+  const handleCloseNewEventModal = () => {
+    setShowNewEventModal(false);
+  };
+
+  const renderNewEventModal = () => {
+    if (!showNewEventModal) {
+      return '';
+    }
+
+    return (
+      <NewEvent
+        onCreate={handleCreateEvent}
+        onClose={handleCloseNewEventModal}
+      />
+    );
+  };
+
+  const renderEvent = (event) => {
     const header = [];
     if (event.name) {
       header.push(<span key="name">{event.name}</span>);
     } else {
       header.push(<i key="name">noname</i>);
     }
-    if (!event.finished) {
-      header.push(<Badge key="inProgress" style={{ backgroundColor: '#777' }} pullRight>in progress</Badge>);
-    }
     return (
-      <Card
-        key={event.id}
-        header={header}
-        collapsible
-        defaultExpanded
+      <RouterLink
+        to={`/events/${event.id}/summary`}
+        style={{ textDecoration: 'none' }}
       >
-        {Events.renderSummary(event)}
-        <br />
-        <br />
-        <Link to={`/events/${event.id}/summary`} className="btn btn-default">
-          View
-        </Link>
-      </Card>
-    );
-  }
-
-  state = {
-    showNewEventModal: false,
-  };
-
-  componentWillUnmount() {
-    this.props.dispatch({
-      type: 'RESET_EVENTS',
-    });
-  }
-
-  handleLoadMore = () => {
-    let params = '';
-    if (this.props.events.length > 0) {
-      const last = _.last(this.props.events);
-      params = `?createdAt=${last.createdAt}&id=${last.id}`;
-    }
-    http.get(`/api/events${params}`)
-    .then((events) => {
-      this.props.dispatch({
-        type: 'LOAD_EVENTS',
-        list: events.list,
-        hasMore: events.list.length > 0,
-      });
-    })
-    .catch(() => {});
-  };
-
-  handleNewEvent = () => {
-    this.setState({ showNewEventModal: true });
-  }
-
-  handleCreateEvent = (name) => {
-    if (!name.trim()) {
-      return;
-    }
-
-    this.setState({ showNewEventModal: false });
-
-    http.post('/api/events', { name })
-    .then((res) => {
-      this.props.dispatch({
-        type: 'CREATE_EVENT',
-        event: res,
-      });
-      this.props.history.push(`/events/${res.id}/players`);
-    })
-    .catch(() => {});
-  }
-
-  handleCloseNewEventModal = () => {
-    this.setState({ showNewEventModal: false });
-  }
-
-  renderNewEventModal() {
-    if (!this.state.showNewEventModal) {
-      return '';
-    }
-
-    return (
-      <NewEvent
-        onCreate={this.handleCreateEvent}
-        onClose={this.handleCloseNewEventModal}
-      />
-    );
-  }
-
-  render() {
-    const events = this.props.events;
-    const loader = <div className="loader">Loading ...</div>;
-
-    return (
-      <Container>
-        <Row style={{ marginBottom: '20px' }}>
-          <Col xs={12}>
-            <Button
-              bsStyle="primary"
-              style={{ width: '100%', height: '50px' }}
-              onClick={this.handleNewEvent}
+        <Card
+          key={event.id}
+          style={{ marginBottom: '20px', cursor: 'pointer' }}
+        >
+          <CardContent>
+            <Typography
+              // className={classes.title}
+              variant="h6"
+              component="h2"
             >
-              New Event
-            </Button>
-            {this.renderNewEventModal()}
-          </Col>
-        </Row>
-        <Row>
-          <Col
-            xs={12}
-            style={{
-              textAlign: 'center',
-              marginBottom: '10px',
-              fontSize: '12px',
-              fontStyle: 'italic',
-            }}
+              {header}
+            </Typography>
+            <br />
+            {renderSummary(event)}
+          </CardContent>
+        </Card>
+      </RouterLink>
+    );
+  };
+
+  const loader = (
+    <div key="loader" className="loader">
+      Loading ...
+    </div>
+  );
+
+  return (
+    <Container>
+      <Grid container>
+        <Grid item xs={12} style={{ marginBottom: '20px' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            style={{ width: '100%', height: '50px' }}
+            onClick={handleNewEvent}
           >
+            New Event
+          </Button>
+          {renderNewEventModal()}
+        </Grid>
+      </Grid>
+      <Grid container>
+        <Grid
+          item
+          xs={12}
+          style={{
+            textAlign: 'center',
+            marginBottom: '10px',
+            fontSize: '12px',
+            fontStyle: 'italic',
+          }}
+        >
           Total {events.length} events
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={12}>
-            <InfiniteScroll
-              pageStart={0}
-              loadMore={this.handleLoadMore}
-              hasMore={this.props.hasMore}
-              loader={loader}
-            >
-              <div className="tracks">
-                {events.map(event => Events.renderEvent(event))}
-              </div>
-            </InfiniteScroll>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
+        </Grid>
+      </Grid>
+      <Grid container>
+        <Grid item xs={12}>
+          <InfiniteScroll
+            pageStart={0}
+            loadMore={handleLoadMore}
+            hasMore={hasMore}
+            loader={loader}
+          >
+            <div className="tracks">
+              {events.map((event) => renderEvent(event))}
+            </div>
+          </InfiniteScroll>
+        </Grid>
+      </Grid>
+    </Container>
+  );
 }
-
-const mapStateToProps = state => ({
-  events: state.events.list,
-  hasMore: state.events.hasMore,
-});
-
-export default withRouter(connect(mapStateToProps)(Events));

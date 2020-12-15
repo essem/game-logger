@@ -12,7 +12,7 @@ const event = (state = null, action) => {
     case 'DELETE_PLAYER':
       return {
         ...state,
-        players: state.players.filter(p => p.id !== action.id),
+        players: state.players.filter((p) => p.id !== action.id),
       };
 
     case 'CREATE_GAME':
@@ -24,7 +24,7 @@ const event = (state = null, action) => {
     case 'DELETE_GAME':
       return {
         ...state,
-        games: state.games.filter(g => g.id !== action.id),
+        games: state.games.filter((g) => g.id !== action.id),
       };
 
     case 'FINISH_EVENT':

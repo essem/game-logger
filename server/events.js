@@ -109,7 +109,7 @@ function init(app) {
         ],
         group: ['playerId'],
         where: { gameId: game.map((g) => g.id) },
-        order: 'count DESC',
+        order: [['count', 'DESC']],
         limit: 1,
       });
       const mostWinCount = mostWin.get('count');
@@ -293,7 +293,7 @@ function init(app) {
       );
 
       ctx.status = 200;
-      websocket.send(id, { type: 'createGame', game: newGame });
+      websocket.send(id, { type: 'createGame', game: ret });
     }),
   );
 

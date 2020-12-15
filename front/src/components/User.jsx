@@ -1,47 +1,41 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Container, Row, Col, Card } from 'react-bootstrap';
-import { withRouter, Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
+import Container from '@material-ui/core/Container';
+import Paper from '@material-ui/core/Paper';
+import Box from '@material-ui/core/Box';
+import Link from '@material-ui/core/Link';
+import { Link as RouterLink } from 'react-router-dom';
 import _ from 'lodash';
+import { useDispatch, useSelector } from 'react-redux';
 import http from '../http';
+import { Typography } from '@material-ui/core';
 
-class User extends React.Component {
-  static propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    match: PropTypes.object.isRequired,
-    user: PropTypes.object,
-  };
+export default function User({ match }) {
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
-  static defaultProps = {
-    user: undefined,
-  };
+  useEffect(() => {
+    const userId = parseInt(match.params.id, 10);
+    http
+      .get(`/api/users/${userId}`)
+      .then((user) => {
+        dispatch({ type: 'INIT_USER', user });
+      })
+      .catch(() => {});
+    return () => dispatch({ type: 'CLEAR_USER' });
+  }, [dispatch, match]);
 
-  componentDidMount() {
-    const userId = parseInt(this.props.match.params.id, 10);
-    http.get(`/api/users/${userId}`)
-    .then((user) => {
-      this.props.dispatch({
-        type: 'INIT_USER',
-        user,
-      });
-    })
-    .catch(() => {});
-  }
-
-  componentWillUnmount() {
-    this.props.dispatch({
-      type: 'CLEAR_USER',
-    });
-  }
-
-  renderAgainstOther(other) {
-    const user = this.props.user;
-    const games = _.flatMap(user.events, event => event.games);
-    const win = games.reduce((n, g) =>
-      n + (_.includes(g.winners, user.id) && _.includes(g.losers, other)), 0);
-    const lose = games.reduce((n, g) =>
-      n + (_.includes(g.winners, other) && _.includes(g.losers, user.id)), 0);
+  const renderAgainstOther = (other) => {
+    const games = _.flatMap(user.events, (event) => event.games);
+    const win = games.reduce(
+      (n, g) =>
+        n + (_.includes(g.winners, user.id) && _.includes(g.losers, other)),
+      0,
+    );
+    const lose = games.reduce(
+      (n, g) =>
+        n + (_.includes(g.winners, other) && _.includes(g.losers, user.id)),
+      0,
+    );
 
     if (win === 0 && lose === 0) {
       return <tr key={other} />;
@@ -58,99 +52,87 @@ class User extends React.Component {
         <td>vs. {user.users[other]}</td>
       </tr>
     );
-  }
+  };
 
-  renderAgainstEachOther() {
-    const user = this.props.user;
-    const users = Object.keys(user.users).map(u => parseInt(u, 10));
-    let others = users.filter(u => u !== user.id);
-    others = _.sortBy(others, u => user.users[u]);
+  const renderAgainstEachOther = () => {
+    const users = Object.keys(user.users).map((u) => parseInt(u, 10));
+    let others = users.filter((u) => u !== user.id);
+    others = _.sortBy(others, (u) => user.users[u]);
     return (
-      <blockquote>
-        <div style={{ marginBottom: '10px' }}>
-          vs. Others
-        </div>
-        <table>
-          <tbody>
-            {others.map(other => this.renderAgainstOther(other))}
-          </tbody>
-        </table>
-      </blockquote>
+      <Paper>
+        <Box p={2}>
+          <Typography variant="h6">vs. Others</Typography>
+          <table>
+            <tbody>{others.map((other) => renderAgainstOther(other))}</tbody>
+          </table>
+        </Box>
+      </Paper>
     );
-  }
+  };
 
-  renderEvent(event) {
-    const user = this.props.user;
-    const win = event.games.reduce((n, g) => n + _.includes(g.winners, user.id), 0);
-    const lose = event.games.reduce((n, g) => n + _.includes(g.losers, user.id), 0);
+  const renderEvent = (event) => {
+    const win = event.games.reduce(
+      (n, g) => n + _.includes(g.winners, user.id),
+      0,
+    );
+    const lose = event.games.reduce(
+      (n, g) => n + _.includes(g.losers, user.id),
+      0,
+    );
     const style = { paddingRight: '10px' };
     return (
       <tr key={event.id}>
         <td style={style}>
-          <Link to={`/events/${event.id}/summary`}>{event.name}</Link>
+          <Link to={`/events/${event.id}/summary`} component={RouterLink}>
+            {event.name}
+          </Link>
         </td>
-        <td style={style}><b>{win}</b> Win</td>
-        <td><b>{lose}</b> Lose</td>
+        <td style={style}>
+          <b>{win}</b> Win
+        </td>
+        <td>
+          <b>{lose}</b> Lose
+        </td>
       </tr>
     );
-  }
+  };
 
-  renderEvents() {
-    const user = this.props.user;
-    const events = _.sortBy(user.events, e => -e.id);
+  const renderEvents = () => {
+    const events = _.sortBy(user.events, (e) => -e.id);
     return (
-      <blockquote>
-        <div style={{ marginBottom: '10px' }}>
-          Events
-        </div>
-        <table>
-          <tbody>
-            {events.map(event => this.renderEvent(event))}
-          </tbody>
-        </table>
-      </blockquote>
+      <Paper>
+        <Box p={2}>
+          <Typography variant="h6">Events</Typography>
+          <table>
+            <tbody>{events.map((event) => renderEvent(event))}</tbody>
+          </table>
+        </Box>
+      </Paper>
     );
+  };
+
+  if (!user) {
+    return <div />;
   }
 
-  render() {
-    const user = this.props.user;
-    if (!user) {
-      return <div />;
-    }
+  const games = _.flatMap(user.events, (event) => event.games);
+  const win = games.reduce((n, g) => n + _.includes(g.winners, user.id), 0);
+  const lose = games.reduce((n, g) => n + _.includes(g.losers, user.id), 0);
 
-    const games = _.flatMap(user.events, event => event.games);
-    const win = games.reduce((n, g) => n + _.includes(g.winners, user.id), 0);
-    const lose = games.reduce((n, g) => n + _.includes(g.losers, user.id), 0);
-
-    return (
-      <Container>
-        <Row>
-          <Col xs={12}>
-            <Card
-              style={{
-                height: '60px',
-                lineHeight: '30px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-              }}
-            >
-              <span>{user.name}</span>
-            </Card>
-          </Col>
-        </Row>
-        <blockquote>
-          Total <b>{win}</b> Win <b>{lose}</b> Lose
-        </blockquote>
-        {this.renderAgainstEachOther()}
-        {this.renderEvents()}
-      </Container>
-    );
-  }
+  return (
+    <Container>
+      <Paper>
+        <Box p={2}>
+          <Typography variant="h6">{user.name}</Typography>
+          <Typography variant="body2">
+            <b>{win}</b> Win <b>{lose}</b> Lose
+          </Typography>
+        </Box>
+      </Paper>
+      <br />
+      {renderAgainstEachOther()}
+      <br />
+      {renderEvents()}
+    </Container>
+  );
 }
-
-const mapStateToProps = state => ({
-  admin: state.app.admin,
-  user: state.user,
-});
-
-export default withRouter(connect(mapStateToProps)(User));

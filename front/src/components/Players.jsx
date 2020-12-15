@@ -1,151 +1,120 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { X } from 'react-bootstrap-icons';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Container, Paper, Box, Button, IconButton } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
 import NewPlayer from './NewPlayer';
 import http from '../http';
 
-class Players extends React.Component {
-  static propTypes = {
-    event: PropTypes.object.isRequired,
-    players: PropTypes.array.isRequired,
+export default function Players() {
+  const event = useSelector((state) => state.event);
+  const [showNewPlayerModal, setShowNewPlayerModal] = useState(false);
+
+  const handleNewPlayer = () => {
+    setShowNewPlayerModal(true);
   };
 
-  state = {
-    showNewPlayerModal: false,
+  const handleCreatePlayer = (users) => {
+    setShowNewPlayerModal(false);
+
+    http.post(`/api/events/${event.id}/players`, { users }).catch(() => {});
   };
 
-  handleNewPlayer = () => {
-    this.setState({ showNewPlayerModal: true });
-  }
+  const handleCloseNewPlayerModal = () => {
+    setShowNewPlayerModal(false);
+  };
 
-  handleCreatePlayer = (users) => {
-    this.setState({ showNewPlayerModal: false });
+  const handleDeletePlayer = (playerId) => {
+    http.delete(`/api/events/${event.id}/players/${playerId}`).catch(() => {});
+  };
 
-    http.post(`/api/events/${this.props.event.id}/players`, { users })
-    .catch(() => {});
-  }
-
-  handleCloseNewPlayerModal = () => {
-    this.setState({ showNewPlayerModal: false });
-  }
-
-  handleDeletePlayer = (playerId) => {
-    http.delete(`/api/events/${this.props.event.id}/players/${playerId}`)
-    .catch(() => {});
-  }
-
-  renderNewPlayerModal() {
-    if (!this.state.showNewPlayerModal) {
+  const renderNewPlayerModal = () => {
+    if (!showNewPlayerModal) {
       return '';
     }
 
     return (
       <NewPlayer
-        onCreate={this.handleCreatePlayer}
-        onClose={this.handleCloseNewPlayerModal}
+        onCreate={handleCreatePlayer}
+        onClose={handleCloseNewPlayerModal}
       />
     );
-  }
+  };
 
-  renderNewPlayer() {
-    if (this.props.event.finished) {
+  const renderNewPlayer = () => {
+    if (event.finished) {
       return '';
     }
 
     return (
-      <Row style={{ marginBottom: '20px' }}>
-        <Col xs={12}>
-          <Button
-            bsStyle="primary"
-            style={{ width: '100%', height: '50px' }}
-            onClick={this.handleNewPlayer}
-          >
-            New Player
-          </Button>
-          {this.renderNewPlayerModal()}
-        </Col>
-      </Row>
+      <>
+        <br />
+        <Button
+          variant="contained"
+          color="primary"
+          style={{ width: '100%', height: '50px' }}
+          onClick={handleNewPlayer}
+        >
+          New Player
+        </Button>
+        {renderNewPlayerModal()}
+      </>
     );
-  }
+  };
 
-  renderPlayer(player) {
-    const { event } = this.props;
-
+  const renderPlayer = (player) => {
     let win = 0;
     let lose = 0;
     for (const game of event.games) {
-      win += game.winners.filter(id => id === player.id).length;
-      lose += game.losers.filter(id => id === player.id).length;
+      win += game.winners.filter((id) => id === player.id).length;
+      lose += game.losers.filter((id) => id === player.id).length;
     }
 
     let deleteButton = '';
     if (!event.finished && win === 0 && lose === 0) {
-      const style = {
-        color: '#ccc',
-        background: 'none',
-        border: 'none',
-        padding: 0,
-        marginLeft: '15px',
-      };
-
       deleteButton = (
-        <button
-          className="pull-right"
-          style={style}
-          onClick={() => this.handleDeletePlayer(player.id)}
+        <IconButton
+          onClick={() => handleDeletePlayer(player.id)}
+          style={{ margin: '-20px -10px -20px 0px' }}
         >
-          <X />
-        </button>
+          <DeleteIcon />
+        </IconButton>
       );
     }
 
     return (
-      <Card
-        key={player.id}
+      <React.Fragment key={player.id}>
+        <Paper>
+          <Box display="flex" alignItems="center" p={3}>
+            <Box flexGrow={1}>{player.user.name}</Box>
+            <Box>
+              {win} W {lose} L
+            </Box>
+            <Box>{deleteButton}</Box>
+          </Box>
+        </Paper>
+        <br />
+      </React.Fragment>
+    );
+  };
+
+  const players = event.players
+    ? event.players.sort((a, b) => a.id - b.id)
+    : [];
+
+  return (
+    <Container>
+      {renderNewPlayer()}
+      <Box
+        style={{
+          textAlign: 'center',
+          margin: '20px',
+          fontSize: '12px',
+          fontStyle: 'italic',
+        }}
       >
-        {player.user.name}
-        <span className="pull-right">
-          {win} W {lose} L
-          {deleteButton}
-        </span>
-      </Card>
-    );
-  }
-
-  render() {
-    const players = this.props.players.sort((a, b) => a.id - b.id);
-
-    return (
-      <Container>
-        {this.renderNewPlayer()}
-        <Row>
-          <Col
-            xs={12}
-            style={{
-              textAlign: 'center',
-              marginBottom: '10px',
-              fontSize: '12px',
-              fontStyle: 'italic',
-            }}
-          >
-          Total {players.length} players
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={12}>
-            {players.map(player => this.renderPlayer(player))}
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
+        Total {players.length} players
+      </Box>
+      {players.map((player) => renderPlayer(player))}
+    </Container>
+  );
 }
-
-const mapStateToProps = state => ({
-  event: state.event,
-  players: state.event.players,
-});
-
-export default connect(mapStateToProps)(Players);

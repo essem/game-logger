@@ -1,9 +1,27 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter, Route } from 'react-router-dom';
-import { Navbar, Nav, NavItem, NavDropdown } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
-import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
+import AppBar from '@material-ui/core/AppBar';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Divider from '@material-ui/core/Divider';
+import Drawer from '@material-ui/core/Drawer';
+import Hidden from '@material-ui/core/Hidden';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import EventIcon from '@material-ui/icons/Event';
+import ShowChartIcon from '@material-ui/icons/ShowChart';
+import PeopleIcon from '@material-ui/icons/People';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import MenuIcon from '@material-ui/icons/Menu';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory, Route, Link as RouterLink } from 'react-router-dom';
+
 import Home from './Home';
 import Login from './Login';
 import Events from './Events';
@@ -13,78 +31,222 @@ import User from './User';
 import Stats from './Stats';
 import LoadingSpinner from './LoadingSpinner';
 
-class Topbar extends React.Component {
-  static propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    history: PropTypes.object.isRequired,
-    checkToken: PropTypes.bool.isRequired,
-    account: PropTypes.string.isRequired,
-  };
+function ListItemLink(props) {
+  const { icon, primary, to } = props;
 
-  componentDidMount() {
+  const renderLink = React.useMemo(
+    () =>
+      React.forwardRef((itemProps, ref) => (
+        <RouterLink to={to} ref={ref} {...itemProps} />
+      )),
+    [to],
+  );
+
+  return (
+    <li>
+      <ListItem button component={renderLink}>
+        {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
+        <ListItemText primary={primary} />
+      </ListItem>
+    </li>
+  );
+}
+
+const drawerWidth = 240;
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+  },
+  drawer: {
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth,
+      flexShrink: 0,
+    },
+  },
+  appBar: {
+    [theme.breakpoints.up('sm')]: {
+      width: `calc(100% - ${drawerWidth}px)`,
+      marginLeft: drawerWidth,
+    },
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
+  },
+  title: {
+    flexGrow: 1,
+  },
+  // necessary for content to be below app bar
+  toolbar: theme.mixins.toolbar,
+  drawerPaper: {
+    width: drawerWidth,
+  },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing(3),
+  },
+  login: {
+    '&:hover': {
+      color: 'white',
+    },
+  },
+}));
+
+export default function Topbar() {
+  const classes = useStyles();
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const checkToken = useSelector((state) => state.app.checkToken);
+  const account = useSelector((state) => state.app.account);
+
+  useEffect(() => {
     const token = localStorage.getItem('token');
 
     // TODO: Ask to server if token is valid
-    this.props.dispatch({
-      type: 'LOGIN',
-      token,
-    });
-  }
+    dispatch({ type: 'LOGIN', token });
+  }, [dispatch]);
 
-  handleLogout = () => {
-    this.props.dispatch({
-      type: 'LOGOUT',
-    });
-    this.props.history.push('/');
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
 
-  renderLogin() {
-    if (this.props.account !== '') {
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    setAnchorEl(null);
+    dispatch({ type: 'LOGOUT' });
+    history.push('/');
+  };
+
+  const renderLogin = () => {
+    if (account !== '') {
       return (
-        <NavDropdown title={this.props.account} id="login">
-          <NavDropdown.Item onClick={this.handleLogout}>
-            Logout
-          </NavDropdown.Item>
-        </NavDropdown>
+        <>
+          <Button
+            className={classes.login}
+            color="inherit"
+            onClick={handleMenu}
+          >
+            {account}
+          </Button>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleCloseMenu}
+          >
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
+        </>
       );
     }
 
     return (
-      <LinkContainer to="/login">
-        <NavItem>Login</NavItem>
-      </LinkContainer>
+      <Button
+        component={RouterLink}
+        to="/login"
+        className={classes.login}
+        color="inherit"
+      >
+        Login
+      </Button>
     );
+  };
+
+  const drawer = (
+    <div>
+      <div className={classes.toolbar} />
+      <Divider />
+      <List>
+        <ListItemLink to="/events" primary="Events" icon={<EventIcon />} />
+        <ListItemLink to="/users" primary="Users" icon={<PeopleIcon />} />
+        <ListItemLink
+          to="/stats"
+          primary="Statistics"
+          icon={<ShowChartIcon />}
+        />
+      </List>
+    </div>
+  );
+
+  if (checkToken) {
+    return <div>Loading...</div>;
   }
 
-  render() {
-    if (this.props.checkToken) {
-      return <div>Loading...</div>;
-    }
-
-    return (
-      <div>
-        <Navbar bg="light" expand="lg">
-          <LinkContainer to="/">
-            <Navbar.Brand>Game Logger</Navbar.Brand>
-          </LinkContainer>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse>
-            <Nav className="mr-auto">
-              <LinkContainer to="/events">
-                <Nav.Link>Events</Nav.Link>
-              </LinkContainer>
-              <LinkContainer to="/users">
-                <Nav.Link>Users</Nav.Link>
-              </LinkContainer>
-              <LinkContainer to="/stats">
-                <Nav.Link>Statistics</Nav.Link>
-              </LinkContainer>
-            </Nav>
-            <Nav pullRight>
-              {this.renderLogin()}
-            </Nav>
-          </Navbar.Collapse>
-        </Navbar>
+  return (
+    <div className={classes.root}>
+      <CssBaseline />
+      <AppBar position="fixed" className={classes.appBar}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            className={classes.menuButton}
+          >
+            <MenuIcon />
+          </IconButton>
+          {/* TODO: Link to root page */}
+          <Typography variant="h6" className={classes.title} noWrap>
+            Game Logger
+          </Typography>
+          {renderLogin()}
+        </Toolbar>
+      </AppBar>
+      <nav className={classes.drawer} aria-label="mailbox folders">
+        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+        <Hidden smUp implementation="css">
+          <Drawer
+            variant="temporary"
+            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+          >
+            {drawer}
+          </Drawer>
+        </Hidden>
+        <Hidden xsDown implementation="css">
+          <Drawer
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+            variant="permanent"
+            open
+          >
+            {drawer}
+          </Drawer>
+        </Hidden>
+      </nav>
+      <main className={classes.content}>
+        <div className={classes.toolbar} />
 
         <Route exact path="/" component={Home} />
         <Route exact path="/login" component={Login} />
@@ -95,14 +257,7 @@ class Topbar extends React.Component {
         <Route exact path="/stats" component={Stats} />
 
         <LoadingSpinner />
-      </div>
-    );
-  }
+      </main>
+    </div>
+  );
 }
-
-const mapStateToProps = state => ({
-  checkToken: state.app.checkToken,
-  account: state.app.account,
-});
-
-export default withRouter(connect(mapStateToProps)(Topbar));

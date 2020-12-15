@@ -1,64 +1,55 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Button, Modal, Form, FormGroup, FormControl } from 'react-bootstrap';
-import PropTypes from 'prop-types';
+import React, { useRef } from 'react';
+import {
+  Box,
+  TextField,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from '@material-ui/core';
 
-export default class NewUser extends React.Component {
-  static propTypes = {
-    onCreate: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
-  };
+export default function NewUser({ onCreate, onClose }) {
+  const userNameEl = useRef(null);
+  const passwordEl = useRef(null);
 
-  componentDidMount() {
-    const input = ReactDOM.findDOMNode(this.addUserName);
-    input.focus();
-  }
-
-  handleCreate = (e) => {
+  const handleCreate = (e) => {
     e.preventDefault();
-    const name = ReactDOM.findDOMNode(this.addUserName);
-    const password = ReactDOM.findDOMNode(this.addUserPassword);
-    this.props.onCreate(name.value, password.value);
+    onCreate(userNameEl.current.value, passwordEl.current.value);
   };
 
-  render() {
-    return (
-      <Modal show onHide={this.props.onClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>New User</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={this.handleCreate}>
-            <FormGroup>
-              <Form.Label>Account</Form.Label>
-              <FormControl
-                ref={(e) => { this.addUserName = e; }}
-                type="text"
-              />
-            </FormGroup>
-            <FormGroup>
-              <Form.Label>Password</Form.Label>
-              <FormControl
-                ref={(e) => { this.addUserPassword = e; }}
-                type="password"
-              />
-            </FormGroup>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            onClick={this.props.onClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            bsStyle="primary"
-            onClick={this.handleCreate}
-          >
-            Create
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  }
+  return (
+    <Dialog open onClose={onClose}>
+      <DialogTitle>New User</DialogTitle>
+      <DialogContent>
+        <form onSubmit={handleCreate}>
+          <Box mb={2}>
+            <TextField
+              label="Account"
+              inputRef={userNameEl}
+              autoFocus
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </Box>
+          <Box>
+            <TextField
+              label="Password"
+              inputRef={passwordEl}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </Box>
+        </form>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button color="primary" onClick={handleCreate}>
+          Create
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }

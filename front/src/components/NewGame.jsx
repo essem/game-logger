@@ -1,136 +1,118 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Card, Row, Col, Button, Modal } from 'react-bootstrap';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from '@material-ui/core';
 
-class NewGame extends React.Component {
-  static propTypes = {
-    players: PropTypes.array.isRequired,
-    team: PropTypes.bool.isRequired,
-    onCreate: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
-  };
+export default function NewGame({ team, onCreate, onClose }) {
+  const players = useSelector((state) => state.event.players);
+  const [step, setStep] = useState('winner');
+  const [winners, setWinners] = useState([]);
+  const [losers, setLosers] = useState([]);
 
-  state = {
-    step: 'winner',
-    winners: [],
-    losers: [],
-  }
-
-  handleClickPlayer = (playerId) => {
-    if (!this.props.team) {
-      if (this.state.step === 'winner') {
-        const winners = this.state.winners.concat(playerId);
-        this.setState({ step: 'loser', winners });
+  const handleClickPlayer = (playerId) => {
+    if (!team) {
+      if (step === 'winner') {
+        setWinners(winners.concat(playerId));
+        setStep('loser');
       } else {
-        const losers = this.state.losers.concat(playerId);
-        this.props.onCreate(this.state.winners, losers);
+        onCreate(winners, losers.concat(playerId));
       }
       return;
     }
 
-    if (this.state.step === 'winner') {
-      const winners = this.state.winners.concat(playerId);
-      this.setState({ winners });
+    if (step === 'winner') {
+      setWinners(winners.concat(playerId));
     } else {
-      const losers = this.state.losers.concat(playerId);
-      this.setState({ losers });
+      setLosers(losers.concat(playerId));
     }
   };
 
-  handleNext = () => {
-    if (this.state.step === 'winner') {
-      this.setState({ step: 'loser' });
+  const handleNext = () => {
+    if (step === 'winner') {
+      setStep('loser');
     } else {
-      this.props.onCreate(this.state.winners, this.state.losers);
+      onCreate(winners, losers);
     }
-  }
+  };
 
-  renderMessage() {
+  const renderMessage = () => {
     let message = '';
-    if (this.state.step === 'winner') {
+    if (step === 'winner') {
       message = 'Select winner';
     } else {
       message = 'Select loser';
     }
 
-    const { players } = this.props;
-
-    const winners = this.state.winners.map(winner => players.find(p => p.id === winner).user.name);
-    const losers = this.state.losers.map(loser => players.find(p => p.id === loser).user.name);
+    const winnerNames = winners.map(
+      (winner) => players.find((p) => p.id === winner).user.name,
+    );
+    const loserNames = losers.map(
+      (loser) => players.find((p) => p.id === loser).user.name,
+    );
 
     return (
-      <Card bg="light">
-        <Card.Body>
-          {message}<br />
-          Winner: {winners.join(', ')}<br />
-          Loser: {losers.join(', ')}<br />
-        </Card.Body>
-      </Card>
+      <Box>
+        {message}
+        <br />
+        Winner: {winnerNames.join(', ')}
+        <br />
+        Loser: {loserNames.join(', ')}
+        <br />
+      </Box>
     );
-  }
+  };
 
-  renderPlayer(player) {
+  const renderPlayer = (player) => {
     return (
-      <Col key={player.id} xs={4}>
-        <Button
-          style={{ width: '100%', height: '50px', marginBottom: '10px' }}
-          onClick={() => this.handleClickPlayer(player.id)}
-        >
-          {player.user.name}
-        </Button>
-      </Col>
+      <Button
+        key={player.id}
+        variant={
+          winners.includes(player.id) || losers.includes(player.id)
+            ? 'contained'
+            : 'outlined'
+        }
+        color="primary"
+        style={{ margin: '10px' }}
+        onClick={() => handleClickPlayer(player.id)}
+      >
+        {player.user.name}
+      </Button>
     );
-  }
+  };
 
-  renderNextButton() {
-    if (!this.props.team) {
+  const renderNextButton = () => {
+    if (!team) {
       return '';
     }
 
     return (
-      <Button
-        bsStyle="primary"
-        onClick={this.handleNext}
-      >
-        {this.state.step === 'winner' ? 'Next' : 'Done'}
+      <Button onClick={handleNext} color="primary">
+        {step === 'winner' ? 'Next' : 'Done'}
       </Button>
     );
-  }
+  };
 
-  render() {
-    const players = this.props.players.sort((a, b) => a.id - b.id);
+  const sortedPlayers = players.sort((a, b) => a.id - b.id);
 
-    return (
-      <Modal show onHide={this.props.onClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>New Game</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Row>
-            <Col xs={12}>
-              {this.renderMessage()}
-            </Col>
-          </Row>
-          <Row>
-            {players.map(player => this.renderPlayer(player))}
-          </Row>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            onClick={this.props.onClose}
-          >
-            Cancel
-          </Button>
-          {this.renderNextButton()}
-        </Modal.Footer>
-      </Modal>
-    );
-  }
+  return (
+    <Dialog open onClose={onClose}>
+      <DialogTitle>New Game</DialogTitle>
+      <DialogContent>
+        <Box>{renderMessage()}</Box>
+        {sortedPlayers.map((player) => renderPlayer(player))}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Cancel
+        </Button>
+        {renderNextButton()}
+      </DialogActions>
+    </Dialog>
+  );
 }
-
-const mapStateToProps = state => ({
-  players: state.event.players,
-});
-
-export default connect(mapStateToProps)(NewGame);

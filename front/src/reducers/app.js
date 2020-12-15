@@ -10,24 +10,23 @@ const initialState = {
 
 const app = (state = initialState, action) => {
   switch (action.type) {
-    case 'LOGIN':
-      {
-        if (action.token) {
-          localStorage.setItem('token', action.token);
-          const decoded = jwtDecode(action.token);
-          return {
-            ...state,
-            checkToken: false,
-            token: action.token,
-            account: decoded.account,
-            admin: decoded.admin,
-          };
-        }
+    case 'LOGIN': {
+      if (action.token) {
+        localStorage.setItem('token', action.token);
+        const decoded = jwtDecode(action.token);
         return {
           ...state,
           checkToken: false,
+          token: action.token,
+          account: decoded.account,
+          admin: decoded.admin,
         };
       }
+      return {
+        ...state,
+        checkToken: false,
+      };
+    }
 
     case 'LOGOUT':
       localStorage.removeItem('token');

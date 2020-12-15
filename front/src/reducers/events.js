@@ -20,7 +20,7 @@ const events = (state = initialState, action) => {
     case 'DELETE_EVENT':
       return {
         ...state,
-        list: state.list.filter(e => e.id !== action.id),
+        list: state.list.filter((e) => e.id !== action.id),
       };
 
     case 'RESET_EVENTS':

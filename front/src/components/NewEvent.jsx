@@ -1,58 +1,57 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Button, Modal, Form, FormGroup, FormControl } from 'react-bootstrap';
-import PropTypes from 'prop-types';
+import React, { useEffect, useRef } from 'react';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+} from '@material-ui/core';
+
 import moment from 'moment';
 
-export default class NewEvent extends React.Component {
-  static propTypes = {
-    onCreate: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
-  };
+function EventNameTextField({ inputRef }) {
+  useEffect(() => {
+    inputRef.current.value = moment().format('YYYY-MM-DD HH:mm:ss');
+    inputRef.current.select();
+  }, [inputRef]);
+  return (
+    <TextField
+      label="Name"
+      inputRef={inputRef}
+      autoFocus
+      InputLabelProps={{
+        shrink: true,
+      }}
+    />
+  );
+}
 
-  componentDidMount() {
-    const input = ReactDOM.findDOMNode(this.addEventText);
-    input.value = moment().format('YYYY-MM-DD HH:mm:ss');
-    input.select();
-    input.focus();
-  }
+export default function NewEvent({ onCreate, onClose }) {
+  const eventTextEl = useRef(null);
 
-  handleCreate = (e) => {
+  const handleCreate = (e) => {
     e.preventDefault();
-    const input = ReactDOM.findDOMNode(this.addEventText);
-    this.props.onCreate(input.value);
+    onCreate(eventTextEl.current.value);
   };
 
-  render() {
-    return (
-      <Modal show onHide={this.props.onClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>New Event</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={this.handleCreate}>
-            <FormGroup>
-              <FormControl
-                ref={(e) => { this.addEventText = e; }}
-                type="text"
-              />
-            </FormGroup>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            onClick={this.props.onClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            bsStyle="primary"
-            onClick={this.handleCreate}
-          >
-            Create
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  }
+  return (
+    <Dialog open onClose={onClose}>
+      <DialogTitle>New Event</DialogTitle>
+      <DialogContent>
+        <form onSubmit={handleCreate}>
+          <Box mb={2}>
+            <EventNameTextField inputRef={eventTextEl} />
+          </Box>
+        </form>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button color="primary" onClick={handleCreate}>
+          Create
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }
