@@ -1,25 +1,19 @@
 const winston = require('winston');
-const DailyRotateFile = require('winston-daily-rotate-file');
-const path = require('path');
-const mkdirp = require('mkdirp');
 const config = require('config');
 
-const transports = [];
+const logger = winston.createLogger();
 
 const logConfig = config.get('log');
 if (logConfig) {
-  if (logConfig.console) {
-    transports.push(new winston.transports.Console(logConfig.console));
-  }
-
-  if (logConfig.file) {
-    const logdir = path.dirname(logConfig.file.filename);
-    mkdirp.sync(logdir);
-
-    transports.push(new DailyRotateFile(logConfig.file));
-  }
+  logger.add(
+    new winston.transports.Console({
+      ...logConfig,
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(),
+      ),
+    }),
+  );
 }
-
-const logger = new winston.Logger({ transports });
 
 module.exports = logger;
