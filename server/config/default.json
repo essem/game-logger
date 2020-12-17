@@ -13,18 +13,6 @@
     "password": "gameLogger"
   },
   "log": {
-    "console": {
-      "level": "debug",
-      "handleExceptions": true,
-      "colorize": true
-    },
-    "file": {
-      "level": "info",
-      "filename": "logs/winston.log",
-      "prepend": true,
-      "handleExceptions": true,
-      "colorize": false,
-      "json": false
-    }
+    "level": "debug"
   }
 }
