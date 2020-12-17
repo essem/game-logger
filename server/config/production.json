@@ -1,4 +1,3 @@
 {
-  "serveStatic": true,
-  "cors": false
+  "serveStatic": true
 }

@@ -22,7 +22,6 @@
     "jsonwebtoken": "^7.4.0",
     "koa": "^2.0.1",
     "koa-bodyparser": "^4.1.0",
-    "koa-cors": "0.0.16",
     "koa-morgan": "^1.0.1",
     "koa-route": "^3.2.0",
     "koa-send": "^4.1.0",

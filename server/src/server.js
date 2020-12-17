@@ -1,5 +1,4 @@
 const Koa = require('koa');
-const cors = require('koa-cors');
 const bodyParser = require('koa-bodyparser');
 const send = require('koa-send');
 const morgan = require('koa-morgan');
@@ -22,10 +21,6 @@ function createKoa(hostname, port) {
     },
   };
   app.use(morgan('combined', { stream }));
-
-  if (config.get('cors')) {
-    app.use(cors());
-  }
 
   auth(app);
   events(app);

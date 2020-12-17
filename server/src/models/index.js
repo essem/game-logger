@@ -14,6 +14,7 @@ if (process.env.DATABASE_URL) {
     {
       dialect: 'postgres',
       host: config.database.host,
+      port: config.database.port,
     },
   );
 }
