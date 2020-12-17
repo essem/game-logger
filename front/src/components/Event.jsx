@@ -33,12 +33,9 @@ export default function Event({ match }) {
 
   const wsConnect = () => {
     const eventId = parseInt(match.params.id, 10);
-    let wsHost = process.env.REACT_APP_WS_HOST;
-    if (wsHost === '') {
-      const loc = window.location;
-      const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
-      wsHost = `${protocol}//${loc.host}${process.env.REACT_APP_SUB_URI}/`;
-    }
+    const loc = window.location;
+    const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsHost = `${protocol}//${loc.host}/api`;
 
     socket.current = new WebSocket(wsHost, 'watch');
     socket.current.onopen = () => {

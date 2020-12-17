@@ -21,10 +21,7 @@ function request(path, method, body) {
 
   dispatch({ type: 'SET_LOADING' });
 
-  return fetch(
-    `${process.env.REACT_APP_API_HOST}${process.env.REACT_APP_SUB_URI}${path}`,
-    options,
-  )
+  return fetch(path, options)
     .then((res) => {
       dispatch({ type: 'CLEAR_LOADING' });
       return res.json();
