@@ -28,11 +28,11 @@ function createKoa(hostname, port) {
   stats(app);
 
   if (config.get('serveStatic')) {
-    app.use(require('koa-static')('../front/dist')); // eslint-disable-line global-require
+    app.use(require('koa-static')('./front')); // eslint-disable-line global-require
   }
 
   app.use(async (ctx) => {
-    await send(ctx, '../front/dist/index.html');
+    await send(ctx, './front/index.html');
   });
 
   const httpServer = app.listen(port, hostname);
