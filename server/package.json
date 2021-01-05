@@ -5,7 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "start": "env NODE_ENV=production node src/index.js",
-    "migrate": "sequelize db:migrate --url 'postgres://gameLogger:gameLogger@localhost/gameLogger'",
+    "db-create": "sequelize db:create",
+    "db-migrate": "sequelize db:migrate",
+    "db-drop": "sequelize db:drop",
     "prettier": "prettier --check .",
     "eslint": "eslint src/",
     "watch": "nodemon --inspect=0.0.0.0:9229 src/index.js"

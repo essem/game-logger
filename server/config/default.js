@@ -8,6 +8,7 @@ module.exports = {
   },
   database: {
     host: process.env.GL_DB_HOST || 'localhost',
+    port: process.env.GL_DB_PORT || 5432,
     db: process.env.GL_DB_NAME || 'gameLogger',
     username: process.env.GL_DB_USER || 'gameLogger',
     password: process.env.GL_DB_PASS || 'gameLogger',
