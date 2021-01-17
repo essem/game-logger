@@ -11,6 +11,7 @@ import {
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { makeStyles } from '@material-ui/core/styles';
 import http from '../http';
+import { login } from '../reducers/app';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -40,24 +41,19 @@ export default function Login() {
   const passwordEl = useRef(null);
   const classes = useStyles();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     const account = accountEl.current.value;
     const password = passwordEl.current.value;
-    http
-      .post('/api/login', { account, password })
-      .then((res) => {
-        if (res.token) {
-          dispatch({
-            type: 'LOGIN',
-            token: res.token,
-          });
-          history.push('/');
-        } else {
-          setLoginMessage('Failed to login');
-        }
-      })
-      .catch(() => {});
+    try {
+      const res = await http.post('/api/login', { account, password });
+      if (res.token) {
+        dispatch(login(res.token));
+        history.push('/');
+      } else {
+        setLoginMessage('Failed to login');
+      }
+    } catch (err) {}
   };
 
   const renderAlert = () => {

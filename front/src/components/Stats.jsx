@@ -41,15 +41,15 @@ export default function Stats() {
     queryStats(offset, months);
   }, [offset, months]);
 
-  const queryStats = (offset, months) => {
-    http
-      .get(`/api/stats?offset=${offset}&months=${months}`)
-      .then((stats) => {
-        setLabels(stats.labels);
-        setUsers(stats.users);
-        setSelected(stats.users.map((u) => u.id));
-      })
-      .catch(() => {});
+  const queryStats = async (offset, months) => {
+    try {
+      const stats = await http.get(
+        `/api/stats?offset=${offset}&months=${months}`,
+      );
+      setLabels(stats.labels);
+      setUsers(stats.users);
+      setSelected(stats.users.map((u) => u.id));
+    } catch (err) {}
   };
 
   const handleChangeOffset = (e) => {

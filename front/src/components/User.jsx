@@ -3,26 +3,27 @@ import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import Link from '@material-ui/core/Link';
+import { Typography } from '@material-ui/core';
 import { Link as RouterLink } from 'react-router-dom';
 import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import http from '../http';
-import { Typography } from '@material-ui/core';
+import { initUser, clearUser } from '../reducers/user';
 
 export default function User({ match }) {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const userId = parseInt(match.params.id, 10);
-    http
-      .get(`/api/users/${userId}`)
-      .then((user) => {
-        dispatch({ type: 'INIT_USER', user });
-      })
-      .catch(() => {});
-    return () => dispatch({ type: 'CLEAR_USER' });
-  }, [dispatch, match]);
+    (async () => {
+      const userId = parseInt(match.params.id, 10);
+      try {
+        const user = await http.get(`/api/users/${userId}`);
+        dispatch(initUser(user));
+      } catch (err) {}
+    })();
+    return () => dispatch(clearUser());
+  }, [dispatch, match.params.id]);
 
   const renderAgainstOther = (other) => {
     const games = _.flatMap(user.events, (event) => event.games);

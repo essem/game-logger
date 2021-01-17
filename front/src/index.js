@@ -1,7 +1,8 @@
 import 'whatwg-fetch';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore, combineReducers } from 'redux';
+import { combineReducers } from 'redux';
+import { configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Route } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
@@ -26,17 +27,15 @@ import http from './http';
 const app = document.createElement('div');
 document.body.appendChild(app);
 
-const store = createStore(
-  combineReducers({
+const store = configureStore({
+  reducer: combineReducers({
     app: appReducer,
     events: eventsReducer,
     event: eventReducer,
     users: usersReducer,
     user: userReducer,
   }),
-  undefined,
-  window.devToolsExtension ? window.devToolsExtension() : undefined,
-);
+});
 
 http.init(store);
 

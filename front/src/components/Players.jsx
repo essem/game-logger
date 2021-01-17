@@ -98,7 +98,7 @@ export default function Players() {
   };
 
   const players = event.players
-    ? event.players.sort((a, b) => a.id - b.id)
+    ? [...event.players].sort((a, b) => a.id - b.id)
     : [];
 
   return (

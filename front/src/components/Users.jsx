@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import NewUser from './NewUser';
 import http from '../http';
+import { initUsers, createUsers } from '../reducers/users';
 
 export default function Users() {
   const [showNewUserModal, setShowNewUserModal] = useState(false);
@@ -14,37 +15,29 @@ export default function Users() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    http
-      .get('/api/users')
-      .then((users) => {
-        dispatch({
-          type: 'INIT_USERS',
-          users,
-        });
-      })
-      .catch(() => {});
+    (async () => {
+      try {
+        const users = await http.get('/api/users');
+        dispatch(initUsers(users));
+      } catch (err) {}
+    })();
   }, [dispatch]);
 
   const handleNewUser = () => {
     setShowNewUserModal(true);
   };
 
-  const handleCreateUser = (name, password) => {
+  const handleCreateUser = async (name, password) => {
     if (!name.trim()) {
       return;
     }
 
     setShowNewUserModal(false);
 
-    http
-      .post('/api/users', { name, password })
-      .then((res) => {
-        dispatch({
-          type: 'CREATE_USER',
-          user: res,
-        });
-      })
-      .catch(() => {});
+    try {
+      const user = await http.post('/api/users', { name, password });
+      dispatch(createUsers(user));
+    } catch (err) {}
   };
 
   const handleCloseNewUserModal = () => {
@@ -81,7 +74,7 @@ export default function Users() {
     );
   };
 
-  const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
+  const sortedUsers = [...users].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <Container>

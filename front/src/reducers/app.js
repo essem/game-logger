@@ -1,4 +1,5 @@
 import jwtDecode from 'jwt-decode';
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   checkToken: true,
@@ -8,50 +9,41 @@ const initialState = {
   loading: false,
 };
 
-const app = (state = initialState, action) => {
-  switch (action.type) {
-    case 'LOGIN': {
-      if (action.token) {
-        localStorage.setItem('token', action.token);
-        const decoded = jwtDecode(action.token);
-        return {
-          ...state,
-          checkToken: false,
-          token: action.token,
-          account: decoded.account,
-          admin: decoded.admin,
-        };
+const appSlice = createSlice({
+  name: 'app',
+  initialState,
+  reducers: {
+    login(state, action) {
+      if (action.payload) {
+        localStorage.setItem('token', action.payload);
+        const decoded = jwtDecode(action.payload);
+        state.checkToken = false;
+        state.token = action.payload;
+        state.account = decoded.account;
+        state.admin = decoded.admin;
+        return state;
       }
-      return {
-        ...state,
-        checkToken: false,
-      };
-    }
-
-    case 'LOGOUT':
-      localStorage.removeItem('token');
-      return {
-        ...state,
-        token: null,
-        account: '',
-        admin: null,
-      };
-
-    case 'SET_LOADING':
-      return {
-        ...state,
-        loading: true,
-      };
-
-    case 'CLEAR_LOADING':
-      return {
-        ...state,
-        loading: false,
-      };
-
-    default:
+      state.checkToken = false;
       return state;
-  }
-};
+    },
+    logout(state, _action) {
+      localStorage.removeItem('token');
+      state.token = null;
+      state.account = '';
+      state.admin = null;
+      return state;
+    },
+    setLoading(state, _action) {
+      state.loading = true;
+      return state;
+    },
+    clearLoading(state, _action) {
+      state.loading = false;
+      return state;
+    },
+  },
+});
 
-export default app;
+export const { login, logout, setLoading, clearLoading } = appSlice.actions;
+
+export default appSlice.reducer;
