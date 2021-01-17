@@ -1,53 +1,57 @@
-const event = (state = null, action) => {
-  switch (action.type) {
-    case 'INIT_EVENT':
-      return action.event;
+import _ from 'lodash';
+import { createSlice } from '@reduxjs/toolkit';
 
-    case 'CREATE_PLAYERS':
-      return {
-        ...state,
-        players: [...state.players, ...action.players],
-      };
-
-    case 'DELETE_PLAYER':
-      return {
-        ...state,
-        players: state.players.filter((p) => p.id !== action.id),
-      };
-
-    case 'CREATE_GAME':
-      return {
-        ...state,
-        games: [...state.games, action.game],
-      };
-
-    case 'DELETE_GAME':
-      return {
-        ...state,
-        games: state.games.filter((g) => g.id !== action.id),
-      };
-
-    case 'FINISH_EVENT':
-      return {
-        ...state,
-        finished: true,
-      };
-
-    case 'REOPEN_EVENT':
-      return {
-        ...state,
-        finished: false,
-      };
-
-    case 'DELETE_EVENT':
-      return null;
-
-    case 'CLEAR_EVENT':
-      return null;
-
-    default:
+const eventSlice = createSlice({
+  name: 'event',
+  initialState: null,
+  reducers: {
+    initEvent(_state, action) {
+      return action.payload;
+    },
+    createPlayers(state, action) {
+      state.players.push(...action.payload);
       return state;
-  }
-};
+    },
+    deletePlayer(state, action) {
+      _.remove(state.players, (p) => p.id === action.payload);
+      return state;
+    },
+    createGame(state, action) {
+      state.games.push(action.payload);
+      return state;
+    },
+    deleteGame(state, action) {
+      _.remove(state.games, (g) => g.id === action.payload);
+      return state;
+    },
+    finishEvent(state, _action) {
+      state.finished = true;
+      return state;
+    },
+    reopenEvent(state, _action) {
+      state.finished = false;
+      return state;
+    },
+    deleteEvent(_state, _action) {
+      console.log(11);
+      return null;
+    },
+    clearEvent(_state, _action) {
+      return null;
+    },
+  },
+});
 
-export default event;
+export const {
+  initEvent,
+  createPlayers,
+  deletePlayer,
+  createGame,
+  deleteGame,
+  finishEvent,
+  reopenEvent,
+  deleteEvent,
+  clearEvent,
+} = eventSlice.actions;
+
+export default eventSlice.reducer;

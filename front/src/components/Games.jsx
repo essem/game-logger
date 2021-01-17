@@ -160,7 +160,7 @@ export default function Games({ players, games }) {
     );
   };
 
-  const sortedGames = event.games.sort((a, b) => b.id - a.id);
+  const sortedGames = [...event.games].sort((a, b) => b.id - a.id);
 
   return (
     <Container>

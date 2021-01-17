@@ -1,14 +1,18 @@
-const users = (state = [], action) => {
-  switch (action.type) {
-    case 'INIT_USERS':
-      return [...action.users];
+import { createSlice } from '@reduxjs/toolkit';
 
-    case 'CREATE_USER':
-      return [...state, action.user];
+const usersSlice = createSlice({
+  name: 'users',
+  initialState: [],
+  reducers: {
+    initUsers(_state, action) {
+      return [...action.payload];
+    },
+    createUsers(state, action) {
+      return [...state, action.payload];
+    },
+  },
+});
 
-    default:
-      return state;
-  }
-};
+export const { initUsers, createUsers } = usersSlice.actions;
 
-export default users;
+export default usersSlice.reducer;

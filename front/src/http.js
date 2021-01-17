@@ -1,6 +1,8 @@
+import { setLoading, clearLoading } from './reducers/app';
+
 let dispatch;
 
-function request(path, method, body) {
+async function request(path, method, body) {
   const headers = {
     'Content-Type': 'application/json',
   };
@@ -19,23 +21,24 @@ function request(path, method, body) {
     options.body = JSON.stringify(body);
   }
 
-  dispatch({ type: 'SET_LOADING' });
+  dispatch(setLoading());
 
-  return fetch(path, options)
-    .then((res) => {
-      dispatch({ type: 'CLEAR_LOADING' });
-      return res.json();
-    })
-    .catch((err) => {
-      dispatch({ type: 'CLEAR_LOADING' });
-      throw err;
-    });
+  try {
+    const res = await fetch(path, options);
+    return await res.json();
+  } finally {
+    dispatch(clearLoading());
+  }
 }
 
-exports.init = (store) => {
-  dispatch = store.dispatch;
+const http = {
+  init: (store) => {
+    dispatch = store.dispatch;
+  },
+  get: (path) => request(path, 'get'),
+  post: (path, body) => request(path, 'post', body),
+  put: (path, body) => request(path, 'put', body),
+  delete: (path) => request(path, 'delete'),
 };
-exports.get = (path) => request(path, 'get');
-exports.post = (path, body) => request(path, 'post', body);
-exports.put = (path, body) => request(path, 'put', body);
-exports.delete = (path) => request(path, 'delete');
+
+export default http;

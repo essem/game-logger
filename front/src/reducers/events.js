@@ -1,37 +1,40 @@
+import _ from 'lodash';
+import { createSlice } from '@reduxjs/toolkit';
+import { deleteEvent } from './event';
+
 const initialState = {
   list: [],
   hasMore: true,
 };
 
-const events = (state = initialState, action) => {
-  switch (action.type) {
-    case 'LOAD_EVENTS':
+const eventsSlice = createSlice({
+  name: 'events',
+  initialState,
+  reducers: {
+    loadEvents(state, action) {
       return {
-        list: [...state.list, ...action.list],
-        hasMore: action.hasMore,
+        list: [...state.list, ...action.payload.list],
+        hasMore: action.payload.hasMore,
       };
-
-    case 'CREATE_EVENT':
-      return {
-        ...state,
-        list: [...state.list, action.event],
-      };
-
-    case 'DELETE_EVENT':
-      return {
-        ...state,
-        list: state.list.filter((e) => e.id !== action.id),
-      };
-
-    case 'RESET_EVENTS':
-      return {
-        list: [],
-        hasMore: true,
-      };
-
-    default:
+    },
+    createEvent(state, action) {
+      state.list.push(action.payload);
       return state;
-  }
-};
+    },
+    resetEvents(_state, _action) {
+      return initialState;
+    },
+  },
+  extraReducers: {
+    [deleteEvent]: (state, action) => {
+      console.log(state.list, action);
+      _.remove(state.list, (e) => e.id === action.payload);
+      console.log(state.list);
+      return state;
+    },
+  },
+});
 
-export default events;
+export const { loadEvents, createEvent, resetEvents } = eventsSlice.actions;
+
+export default eventsSlice.reducer;

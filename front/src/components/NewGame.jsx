@@ -98,7 +98,7 @@ export default function NewGame({ team, onCreate, onClose }) {
     );
   };
 
-  const sortedPlayers = players.sort((a, b) => a.id - b.id);
+  const sortedPlayers = [...players].sort((a, b) => a.id - b.id);
 
   return (
     <Dialog open onClose={onClose}>

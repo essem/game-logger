@@ -14,6 +14,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import nl2br from 'react-nl2br';
 import NewEvent from './NewEvent';
 import http from '../http';
+import { loadEvents, createEvent, resetEvents } from '../reducers/events';
 
 export default function Events() {
   const events = useSelector((state) => state.events.list);
@@ -23,7 +24,7 @@ export default function Events() {
   const history = useHistory();
 
   useEffect(() => {
-    return () => dispatch({ type: 'RESET_EVENTS' });
+    return () => dispatch(resetEvents());
   }, [dispatch]);
 
   const renderSummary = (event) => {
@@ -34,45 +35,39 @@ export default function Events() {
     return nl2br(event.summary);
   };
 
-  const handleLoadMore = () => {
+  const handleLoadMore = async () => {
     let params = '';
     if (events.length > 0) {
       const last = _.last(events);
       params = `?createdAt=${last.createdAt}&id=${last.id}`;
     }
-    http
-      .get(`/api/events${params}`)
-      .then((events) => {
-        dispatch({
-          type: 'LOAD_EVENTS',
+    try {
+      const events = await http.get(`/api/events${params}`);
+      dispatch(
+        loadEvents({
           list: events.list,
           hasMore: events.list.length > 0,
-        });
-      })
-      .catch(() => {});
+        }),
+      );
+    } catch (err) {}
   };
 
   const handleNewEvent = () => {
     setShowNewEventModal(true);
   };
 
-  const handleCreateEvent = (name) => {
+  const handleCreateEvent = async (name) => {
     if (!name.trim()) {
       return;
     }
 
     setShowNewEventModal(false);
 
-    http
-      .post('/api/events', { name })
-      .then((res) => {
-        dispatch({
-          type: 'CREATE_EVENT',
-          event: res,
-        });
-        history.push(`/events/${res.id}/players`);
-      })
-      .catch(() => {});
+    try {
+      const event = await http.post('/api/events', { name });
+      dispatch(createEvent(event));
+      history.push(`/events/${event.id}/players`);
+    } catch (err) {}
   };
 
   const handleCloseNewEventModal = () => {

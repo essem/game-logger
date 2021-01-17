@@ -18,6 +18,17 @@ import http from '../http';
 import Players from './Players';
 import Games from './Games';
 import Summary from './Summary';
+import {
+  initEvent,
+  createPlayers,
+  deletePlayer,
+  createGame,
+  deleteGame,
+  finishEvent,
+  reopenEvent,
+  deleteEvent,
+  clearEvent,
+} from '../reducers/event';
 
 export default function Event({ match }) {
   const admin = useSelector((state) => state.app.admin);
@@ -66,33 +77,19 @@ export default function Event({ match }) {
     const message = JSON.parse(data);
     switch (message.type) {
       case 'createGame':
-        dispatch({
-          type: 'CREATE_GAME',
-          game: message.game,
-        });
+        dispatch(createGame(message.game));
         break;
       case 'deleteGame':
-        dispatch({
-          type: 'DELETE_GAME',
-          id: message.gameId,
-        });
+        dispatch(deleteGame(message.gameId));
         break;
       case 'createPlayers':
-        dispatch({
-          type: 'CREATE_PLAYERS',
-          players: message.players,
-        });
+        dispatch(createPlayers(message.players));
         break;
       case 'deletePlayer':
-        dispatch({
-          type: 'DELETE_PLAYER',
-          id: message.playerId,
-        });
+        dispatch(deletePlayer(message.playerId));
         break;
       case 'finish':
-        dispatch({
-          type: 'FINISH_EVENT',
-        });
+        dispatch(finishEvent());
         wsClose();
         break;
       default:
@@ -100,20 +97,18 @@ export default function Event({ match }) {
   };
 
   useEffect(() => {
-    const eventId = parseInt(match.params.id, 10);
-    http
-      .get(`/api/events/${eventId}`)
-      .then((event) => {
-        dispatch({
-          type: 'INIT_EVENT',
-          event,
-        });
+    (async () => {
+      const eventId = parseInt(match.params.id, 10);
+
+      try {
+        const event = await http.get(`/api/events/${eventId}`);
+        dispatch(initEvent(event));
 
         if (!event.finished) {
           wsConnect();
         }
-      })
-      .catch(() => {});
+      } catch (err) {}
+    })();
     return () => {
       if (socket.current) {
         socket.current.onclose = () => {};
@@ -122,9 +117,7 @@ export default function Event({ match }) {
       if (wsReconnectTimer.current) {
         clearTimeout(wsReconnectTimer.current);
       }
-      dispatch({
-        type: 'CLEAR_EVENT',
-      });
+      dispatch(clearEvent());
     };
     // TODO: remove eslint-disable-line
   }, [dispatch, match]); // eslint-disable-line
@@ -143,35 +136,26 @@ export default function Event({ match }) {
     setShowFinishConfirm(false);
   };
 
-  const handleReopen = () => {
-    http
-      .put(`/api/events/${event.id}/reopen`)
-      .then(() => {
-        dispatch({
-          type: 'REOPEN_EVENT',
-        });
-        wsConnect();
-      })
-      .catch(() => {});
+  const handleReopen = async () => {
+    try {
+      await http.put(`/api/events/${event.id}/reopen`);
+      dispatch(reopenEvent());
+      wsConnect();
+    } catch (err) {}
   };
 
   const handleConfirmDelete = () => {
     setShowDeleteConfirm(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     setShowDeleteConfirm(false);
 
-    http
-      .delete(`/api/events/${event.id}`)
-      .then((res) => {
-        dispatch({
-          type: 'DELETE_EVENT',
-          id: res.id,
-        });
-        history.push('/events');
-      })
-      .catch(() => {});
+    try {
+      const res = await http.delete(`/api/events/${event.id}`);
+      dispatch(deleteEvent(res.id));
+      history.push('/events');
+    } catch (err) {}
   };
 
   const handleCloseDeleteConfirm = () => {

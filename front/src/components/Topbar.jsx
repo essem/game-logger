@@ -30,6 +30,7 @@ import Users from './Users';
 import User from './User';
 import Stats from './Stats';
 import LoadingSpinner from './LoadingSpinner';
+import { login, logout } from '../reducers/app';
 
 function ListItemLink(props) {
   const { icon, primary, to } = props;
@@ -109,7 +110,7 @@ export default function Topbar() {
     const token = localStorage.getItem('token');
 
     // TODO: Ask to server if token is valid
-    dispatch({ type: 'LOGIN', token });
+    dispatch(login(token));
   }, [dispatch]);
 
   const handleDrawerToggle = () => {
@@ -126,7 +127,7 @@ export default function Topbar() {
 
   const handleLogout = () => {
     setAnchorEl(null);
-    dispatch({ type: 'LOGOUT' });
+    dispatch(logout());
     history.push('/');
   };
 
