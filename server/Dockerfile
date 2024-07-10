@@ -1,5 +1,6 @@
 FROM node:12-alpine
 
+RUN apk add --no-cache alpine-sdk python3
 WORKDIR /app
 ENV NODE_ENV production
 COPY package.json yarn.lock ./
